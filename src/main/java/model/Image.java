@@ -1,12 +1,12 @@
 package model;
 
 import java.util.Date;
+import java.util.List;
 
-public class Image {
+public class Image extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private Category category;
     private Test test;
     private User owner;
@@ -20,17 +20,10 @@ public class Image {
     private int numberOfRates;
     private int rateCount;
     private String status;
+    private List<ImageResolution> resolutionList;
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public Category getCategory() {
         return category;
     }
@@ -133,5 +126,13 @@ public class Image {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<ImageResolution> getResolutionList() {
+        return resolutionList;
+    }
+
+    public void setResolutionList(List<ImageResolution> resolutionList) {
+        this.resolutionList = resolutionList;
     }
 }

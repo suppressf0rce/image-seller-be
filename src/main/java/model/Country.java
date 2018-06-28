@@ -1,10 +1,9 @@
 package model;
 
-public class Country {
+public class Country extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private String iso;
     private String name;
     private String niceName;
@@ -14,14 +13,6 @@ public class Country {
 
     //Getters && Setters//
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getIso() {
         return iso;
     }

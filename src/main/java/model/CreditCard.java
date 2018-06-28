@@ -1,24 +1,15 @@
 package model;
 
-public class CreditCard {
+public class CreditCard extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private User user;
     private String number;
 
 
     //Getters & Setters
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public User getUser() {
         return user;
     }

@@ -1,24 +1,15 @@
 package model;
 
-public class ImageResolution {
+public class ImageResolution extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private Resolution resolution;
     private String link;
     private double price;
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public Resolution getResolution() {
         return resolution;
     }

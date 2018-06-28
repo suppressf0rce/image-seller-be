@@ -1,23 +1,14 @@
 package model;
 
-public class Permission {
+public class Permission extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private String description;
 
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getDescription() {
         return description;
     }

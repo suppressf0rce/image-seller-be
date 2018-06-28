@@ -1,12 +1,11 @@
 package model;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public class User {
+public class User extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private String username;
     private String password;
     private String email;
@@ -15,19 +14,11 @@ public class User {
     private boolean passwordChange;
     private boolean blocked;
     private boolean suspended;
-    private ArrayList<Permission> types;
+    private List<Permission> types;
 
 
     //Getters & Setters //
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -92,11 +83,11 @@ public class User {
         this.suspended = suspended;
     }
 
-    public ArrayList<Permission> getTypes() {
+    public List<Permission> getTypes() {
         return types;
     }
 
-    public void setTypes(ArrayList<Permission> types) {
+    public void setTypes(List<Permission> types) {
         this.types = types;
     }
 }

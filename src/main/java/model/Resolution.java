@@ -1,10 +1,9 @@
 package model;
 
-public class Resolution {
+public class Resolution extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private String description;
     private int width;
     private int height;
@@ -13,14 +12,6 @@ public class Resolution {
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getDescription() {
         return description;
     }

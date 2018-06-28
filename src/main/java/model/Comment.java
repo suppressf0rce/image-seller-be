@@ -2,11 +2,10 @@ package model;
 
 import java.util.Date;
 
-public class Comment {
+public class Comment extends Entity{
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
-    private int id;
     private User commenter;
     private User commentTo;
     private String content;
@@ -14,14 +13,6 @@ public class Comment {
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public User getCommenter() {
         return commenter;
     }
