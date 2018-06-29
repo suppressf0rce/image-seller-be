@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Entity implements Serializable {
 
+
     //Constants//
     //----------------------------------------------------------------------------------------------------------------//
     public static final String ID = "id";
@@ -44,5 +45,10 @@ public class Entity implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+
+    public String primaryKeyColumnName(){
+        return ID;
     }
 }
