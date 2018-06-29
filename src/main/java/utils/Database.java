@@ -12,8 +12,8 @@ public final class Database {
 
     private static final String USERNAME        = "imageseller";
     private static final String PASSWORD        = "imageseller";
-    private static final String DRIVER_CLASS    = "com.mysql.jdbc.Driver";
-    private static final String HOST            = "jdbc:mysql://localhost:3306/imageseller";
+    private static final String DRIVER_CLASS    = "com.mysql.cj.jdbc.Driver";
+    private static final String HOST            = "jdbc:mysql://localhost:3306/imageseller?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
     static {
         dataSource.setDriverClassName(DRIVER_CLASS);
