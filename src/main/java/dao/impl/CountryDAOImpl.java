@@ -4,6 +4,7 @@ import dao.CountryDAO;
 import model.Country;
 import utils.Database;
 
+import javax.enterprise.context.Dependent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("Duplicates")
+@Dependent
 public class CountryDAOImpl implements CountryDAO {
 
     //SQL//
