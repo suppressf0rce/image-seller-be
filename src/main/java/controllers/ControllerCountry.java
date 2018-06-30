@@ -41,29 +41,27 @@ public class ControllerCountry {
     @Consumes("application/json")
     @Secured
     public CountryDTO add(CountryDTO dto){
-        return service.add(dto);
+        return service.add(dto,authenticatedUser);
     }
 
     @PUT
     @Consumes("application/json")
     @Secured
     public CountryDTO update(CountryDTO dto){
-        return service.update(dto);
+        return service.update(dto,authenticatedUser);
     }
 
     @DELETE
     @Consumes("application/json")
     @Secured
     public CountryDTO delete(CountryDTO dto){
-        return service.removeById(dto.getId());
+        return service.removeById(dto.getId(), authenticatedUser);
     }
 
     @DELETE
     @Path("/{id}")
     @Secured
     public CountryDTO delete(@PathParam("id") int id){
-        return service.removeById(id);
+        return service.removeById(id, authenticatedUser);
     }
-
-    //TODO:Needs testing!!!
 }

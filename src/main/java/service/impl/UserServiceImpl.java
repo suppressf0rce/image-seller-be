@@ -1,11 +1,13 @@
 package service.impl;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import dao.UserDAO;
 import dto.UserDTO;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import model.User;
+import security.AuthenticationFilter;
 import service.UserService;
 import utils.Constants;
 
@@ -36,7 +38,8 @@ public class UserServiceImpl implements UserService {
             String token = issueToken(userDTO.getUsername());
 
             // Return the token on the response
-            return Response.ok(token).build();
+            String tokenObj = "{\"token\":\""+token+"\"}";
+            return Response.ok(tokenObj).header("Authorization", AuthenticationFilter.AUTHENTICATION_SCHEME+" "+token).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).build();
@@ -44,19 +47,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO add(UserDTO object) {
+    public UserDTO add(UserDTO object, User authUser) {
         //TODO:implement
         return null;
     }
 
     @Override
-    public UserDTO removeById(int id) {
+    public UserDTO removeById(int id, User authUser) {
         //TODO:implement
         return null;
     }
 
     @Override
-    public UserDTO update(UserDTO object) {
+    public UserDTO update(UserDTO object, User authuser) {
         //TODO:implement
         return null;
     }

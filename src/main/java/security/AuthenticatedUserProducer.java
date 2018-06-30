@@ -7,6 +7,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.ws.rs.ForbiddenException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
@@ -32,9 +33,8 @@ public class AuthenticatedUserProducer {
             return userDao.findByUsername(username);
         } catch (SQLException e) {
             Logger.getLogger(this.getClass().getSimpleName()).severe("Couldn't Find user ["+username+"]; Message: "+e.getMessage());
+            throw new ForbiddenException(e.getMessage());
         }
-
-        return null;
     }
 
 }

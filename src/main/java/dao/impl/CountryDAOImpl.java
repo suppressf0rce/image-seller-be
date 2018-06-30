@@ -5,10 +5,7 @@ import model.Country;
 import utils.Database;
 
 import javax.enterprise.context.Dependent;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +22,9 @@ public class CountryDAOImpl implements CountryDAO {
 
 
     @Override
-    public void add(Country object) throws SQLException {
+    public int add(Country object) throws SQLException {
         Connection connection = Database.getConnection();
-        PreparedStatement ps = connection.prepareStatement(INSERT_SQL);
+        PreparedStatement ps = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, object.getIso());
         ps.setString(2, object.getName());
         ps.setString(3, object.getNiceName());
@@ -35,7 +32,15 @@ public class CountryDAOImpl implements CountryDAO {
         ps.setInt(5, object.getNumCode());
         ps.setInt(6, object.getPhoneCode());
         ps.execute();
+
+        ResultSet rs = ps.getGeneratedKeys();
+        int result = 0;
+        if (rs.next())
+            result = rs.getInt(1);
+
         connection.close();
+
+        return result;
     }
 
     @Override
@@ -79,9 +84,12 @@ public class CountryDAOImpl implements CountryDAO {
         PreparedStatement ps = connection.prepareStatement(GET_BY_ID_SQL);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
-        rs.next();
-        Country country = getCountryFromResultSet(rs);
-        connection.close();
+
+        Country country = null;
+        if(rs.next())
+            country = getCountryFromResultSet(rs);
+
+            connection.close();
 
         return country;
     }

@@ -19,7 +19,7 @@ import java.util.Date;
 public class AuthenticationFilter implements ContainerRequestFilter {
 
     private static final String REALM = "example";
-    private static final String AUTHENTICATION_SCHEME = "Bearer";
+    public static final String AUTHENTICATION_SCHEME = "Bearer";
 
 
     @Inject

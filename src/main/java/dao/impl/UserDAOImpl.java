@@ -2,15 +2,13 @@ package dao.impl;
 
 import dao.CountryDAO;
 import dao.UserDAO;
+import model.Permission;
 import model.User;
 import utils.Database;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,14 +24,15 @@ public class UserDAOImpl implements UserDAO {
     private static final String GET_BY_ID_SQL   = "SELECT * FROM users WHERE id = ?";
     private static final String GET_BY_USERNAME = "SELECT * FROM users WHERE username = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM users";
+    private static final String GET_PERMISSIONS = "SELECT user_types.user_id, user_types.permission_id, permissions.description FROM user_types INNER JOIN permissions ON user_types.permission_id=permissions.id WHERE user_id = ?";
 
     @Inject
     private CountryDAO countryDAO;
 
     @Override
-    public void add(User object) throws SQLException{
+    public int add(User object) throws SQLException{
         Connection connection = Database.getConnection();
-        PreparedStatement ps = connection.prepareStatement(INSERT_SQL);
+        PreparedStatement ps = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, object.getCountry().getId());
         ps.setString(2, object.getUsername());
         ps.setString(3, object.getPassword());
@@ -43,7 +42,15 @@ public class UserDAOImpl implements UserDAO {
         ps.setBoolean(7,object.isBlocked());
         ps.setBoolean(8,object.isSuspended());
         ps.execute();
+
+        int result = 0;
+        ResultSet rs = ps.getGeneratedKeys();
+        if(rs.next())
+            result = rs.getInt(1);
+
         connection.close();
+
+        return result;
     }
 
     @Override
@@ -106,8 +113,7 @@ public class UserDAOImpl implements UserDAO {
         user.setPassword(rs.getString("password"));
         user.setEmail(rs.getString("email"));
         user.setCountry(countryDAO.getById(rs.getInt("country_id")));
-        //TODO:Write Permission dao
-        //user.setTypes();
+        user.setTypes(getUserPermissions(user.getId()));
         user.setRating(rs.getDouble("rating"));
         user.setPasswordChange(rs.getBoolean("password_change"));
         user.setBlocked(rs.getBoolean("blocked"));
@@ -125,6 +131,24 @@ public class UserDAOImpl implements UserDAO {
         return users;
     }
 
+    private List<Permission> getUserPermissions(int userID) throws SQLException{
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_PERMISSIONS);
+        ps.setInt(1, userID);
+        ResultSet rs = ps.executeQuery();
+        List<Permission> permissions = new ArrayList<>();
+
+        while(rs.next()){
+            Permission permission = new Permission();
+            permission.setId(rs.getInt("permission_id"));
+            permission.setDescription(rs.getString("description"));
+            permissions.add(permission);
+        }
+
+        connection.close();
+
+        return permissions;
+    }
 
     @Override
     public User findByUsername(String username) throws SQLException{
