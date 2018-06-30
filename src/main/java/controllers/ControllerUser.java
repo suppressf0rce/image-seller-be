@@ -6,11 +6,9 @@ import service.UserService;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Stateless
 @LocalBean
@@ -26,6 +24,18 @@ public class ControllerUser {
     @Consumes("application/json")
     public Response login(UserDTO userDTO) {
         return userService.login(userDTO);
+    }
+
+
+    @GET
+    public List<UserDTO> getAll(){
+        return userService.getAll();
+    }
+
+    @GET
+    @Path("/{id}")
+    public UserDTO getById(@PathParam("id") int id){
+        return userService.getById(id);
     }
 
 

@@ -2,10 +2,12 @@ package service.impl;
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import dao.UserDAO;
+import dto.CountryDTO;
 import dto.UserDTO;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import model.Country;
 import model.User;
 import security.AuthenticationFilter;
 import service.UserService;
@@ -14,9 +16,12 @@ import utils.Constants;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -66,14 +71,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getAll() {
-        //TODO:implement
-        return null;
+        try {
+            List<User> users = userDAO.getAll();
+            List<UserDTO> dtos = new ArrayList<>();
+            for(User user: users)
+                dtos.add(convertToDTO(user,UserDTO.class));
+            return dtos;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
     public UserDTO getById(int id) {
-        //TODO:implement
-        return null;
+        try {
+            return convertToDTO(userDAO.getById(id), UserDTO.class);
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
 
