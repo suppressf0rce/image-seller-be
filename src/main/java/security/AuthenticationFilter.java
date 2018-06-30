@@ -1,10 +1,18 @@
-package utils;
+package security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import utils.Constants;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import javax.xml.bind.DatatypeConverter;
+import java.util.Date;
 
 @Provider
 @Secured
@@ -12,6 +20,11 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
     private static final String REALM = "example";
     private static final String AUTHENTICATION_SCHEME = "Bearer";
+
+
+    @Inject
+    @AuthenticatedUser
+    Event<String> userAuthenticatedEvent;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -59,10 +72,28 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                         .build());
     }
 
-    private void validateToken(String token) {
+    private void validateToken(String token) throws Exception{
         // Check if the token was issued by the server and if it's not expired
         // Throw an Exception if the token is invalid
-        //TODO:Implement
+
+        //This line will throw an exception if it is not a signed JWS (as expected)
+        Claims claims = Jwts.parser()
+                .setSigningKey(DatatypeConverter.parseBase64Binary(Constants.API_KEY))
+                .parseClaimsJws(token).getBody();
+
+        //Check whether token expired or not
+        if(claims.getExpiration() != null){
+            if(claims.getExpiration().after(new Date()))
+                throw new Exception();
+        }
+
+        //Check who issued token
+        if(!claims.getIssuer().equals(Constants.APP_NAME))
+            throw new Exception();
+
+
+        // Fire Authentication info for username so we can access it later
+        userAuthenticatedEvent.fire(claims.getSubject());
     }
 
 }

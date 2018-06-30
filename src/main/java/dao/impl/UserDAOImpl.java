@@ -24,6 +24,7 @@ public class UserDAOImpl implements UserDAO {
     private static final String REMOVE_SQL      = "DELETE FROM users WHERE id = ?";
     private static final String UPDATE_SQL      = "UPDATE users SET country_id = ?, username = ?, password = ?, email = ?, rating = ?, password_change = ?, blocked = ?, suspended = ? WHERE id = ?";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM users WHERE id = ?";
+    private static final String GET_BY_USERNAME = "SELECT * FROM users WHERE username = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM users";
 
     @Inject
@@ -88,8 +89,11 @@ public class UserDAOImpl implements UserDAO {
         PreparedStatement ps = connection.prepareStatement(GET_BY_ID_SQL);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
-        rs.next();
-        User user = getUserFromResultSet(rs);
+        User user = null;
+
+        if(rs.next())
+            user = getUserFromResultSet(rs);
+
         connection.close();
 
         return user;
@@ -119,5 +123,22 @@ public class UserDAOImpl implements UserDAO {
         }
 
         return users;
+    }
+
+
+    @Override
+    public User findByUsername(String username) throws SQLException{
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_BY_USERNAME);
+        ps.setString(1, username);
+        ResultSet rs = ps.executeQuery();
+        User user = null;
+
+        if(rs.next())
+            user = getUserFromResultSet(rs);
+
+        connection.close();
+
+        return user;
     }
 }

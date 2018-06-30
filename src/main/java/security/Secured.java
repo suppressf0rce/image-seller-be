@@ -1,4 +1,4 @@
-package utils;
+package security;
 
 import javax.ws.rs.NameBinding;
 import java.lang.annotation.ElementType;

@@ -1,8 +1,10 @@
 package controllers;
 
 import dto.CountryDTO;
+import model.User;
+import security.AuthenticatedUser;
 import service.CountryService;
-import utils.Secured;
+import security.Secured;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -18,6 +20,10 @@ public class ControllerCountry {
 
     @Inject
     private CountryService service;
+
+    @Inject
+    @AuthenticatedUser
+    private User authenticatedUser;
 
     @GET
 
@@ -58,4 +64,6 @@ public class ControllerCountry {
     public CountryDTO delete(@PathParam("id") int id){
         return service.removeById(id);
     }
+
+    //TODO:Needs testing!!!
 }
