@@ -38,5 +38,11 @@ public class ControllerUser {
         return userService.getById(id);
     }
 
+    @POST
+    @Consumes("application/json")
+    public UserDTO register(UserDTO userDTO){
+        return userService.register(userDTO);
+    }
+
 
 }

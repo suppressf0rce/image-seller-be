@@ -52,21 +52,51 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO register(UserDTO userDTO){
+        if(userDTO.getUsername() == null)
+            throw new BadRequestException("Username is null");
+
+        if(userDTO.getPassword() == null)
+            throw new BadRequestException("Password is null");
+
+        if(userDTO.getEmail() == null)
+            throw new BadRequestException("Email is null");
+
+        userDTO.setTypes(null);
+
+        return add(userDTO,null);
+    }
+
+    @Override
     public UserDTO add(UserDTO object, User authUser) {
-        //TODO:implement
-        return null;
+        try {
+            object.setId(userDAO.add(convertToEntity(object, User.class)));
+            return object;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
     public UserDTO removeById(int id, User authUser) {
-        //TODO:implement
-        return null;
+        try {
+            userDAO.removeById(id);
+            UserDTO dto = new UserDTO();
+            dto.setId(id);
+            return dto;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
     public UserDTO update(UserDTO object, User authuser) {
-        //TODO:implement
-        return null;
+        try {
+            userDAO.update(convertToEntity(object,User.class));
+            return object;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
