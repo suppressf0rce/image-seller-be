@@ -30,17 +30,26 @@
             ImageSeller
         </a>
 
-        <div class="collapse navbar-collapse navbar-right" id="navbarSupportedContent2">
+        <div class="collapse navbar-collapse navbar-right" id="navbarSupportedContent2" ng-cloak>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="#!/pricing">Pricing</a>
                 </li>
                 <li class="divider-vertical"></li>
-                <li class="nav-item">
+                <li class="nav-item" ng-if="!loggedIn">
                     <a class="nav-link" href="#!/login">Sign In</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" ng-if="!loggedIn">
                     <a class="nav-link" href="#!/register">Register</a>
+                </li>
+                <li class="nav-item dropdown" ng-if="loggedIn">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user"></i>&nbsp&nbsp{{loggedUser.username}}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" ng-click="logout()">Logout <i class="fas fa-sign-out-alt"></i></a>
+                    </div>
                 </li>
             </ul>
         </div>

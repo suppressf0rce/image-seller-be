@@ -1,14 +1,18 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     6/28/2018 3:15:51 PM                         */
+/* Created on:     7/1/2018 4:09:16 PM                          */
 /*==============================================================*/
 
 set FOREIGN_KEY_CHECKS=0;
+drop index if exists NAME_AK on category;
+
 drop table if exists category;
 
 drop table if exists comments;
 
 drop table if exists country;
+
+drop index if exists NUMBER_AK on credit_cards;
 
 drop table if exists credit_cards;
 
@@ -24,6 +28,8 @@ drop table if exists tests;
 
 drop table if exists user_types;
 
+drop index if exists USERNAME_AK on users;
+
 drop table if exists users;
 set FOREIGN_KEY_CHECKS=1;
 
@@ -35,6 +41,14 @@ create table category
   id                   int not null auto_increment,
   name                 varchar(100) not null,
   primary key (id)
+);
+
+/*==============================================================*/
+/* Index: NAME_AK                                               */
+/*==============================================================*/
+create unique index NAME_AK on category
+(
+  name
 );
 
 /*==============================================================*/
@@ -74,6 +88,14 @@ create table credit_cards
   user_id              int not null,
   number               text not null,
   primary key (id)
+);
+
+/*==============================================================*/
+/* Index: NUMBER_AK                                             */
+/*==============================================================*/
+create unique index NUMBER_AK on credit_cards
+(
+  number
 );
 
 /*==============================================================*/
@@ -173,6 +195,14 @@ create table users
   primary key (id)
 );
 
+/*==============================================================*/
+/* Index: USERNAME_AK                                           */
+/*==============================================================*/
+create unique index USERNAME_AK on users
+(
+  username
+);
+
 alter table comments add constraint FK_comment_to foreign key (commenter)
 references users (id) on delete cascade on update cascade;
 
@@ -208,6 +238,8 @@ references permissions (id) on delete cascade on update cascade;
 
 alter table users add constraint FK_countries foreign key (country_id)
 references country (id) on delete restrict on update restrict;
+
+
 
 /*==============================================================*/
 /* Data: country                                                */

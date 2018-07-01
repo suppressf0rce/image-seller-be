@@ -1,6 +1,9 @@
 package controllers;
 
 import dto.UserDTO;
+import model.User;
+import security.AuthenticatedUser;
+import security.Secured;
 import service.UserService;
 
 import javax.ejb.LocalBean;
@@ -18,6 +21,10 @@ public class ControllerUser {
 
     @Inject
     private UserService userService;
+
+    @Inject
+    @AuthenticatedUser
+    private User authUser;
 
     @POST
     @Path("/login")
@@ -39,9 +46,17 @@ public class ControllerUser {
     }
 
     @POST
+    @Path("/register")
     @Consumes("application/json")
-    public UserDTO register(UserDTO userDTO){
+    public Response register(UserDTO userDTO){
         return userService.register(userDTO);
+    }
+
+    @GET
+    @Path("/token")
+    @Secured
+    public UserDTO getUserByToken(){
+        return userService.convertToDTO(authUser, UserDTO.class);
     }
 
 

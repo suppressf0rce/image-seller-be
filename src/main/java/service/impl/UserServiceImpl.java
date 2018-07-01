@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO register(UserDTO userDTO){
+    public Response register(UserDTO userDTO){
         if(userDTO.getUsername() == null)
             throw new BadRequestException("Username is null");
 
@@ -64,7 +64,14 @@ public class UserServiceImpl implements UserService {
 
         userDTO.setTypes(null);
 
-        return add(userDTO,null);
+        add(userDTO,null);
+
+        // Issue a token for the user
+        String token = issueToken(userDTO.getUsername());
+
+        // Return the token on the response
+        String tokenObj = "{\"token\":\""+token+"\"}";
+        return Response.ok(tokenObj).header("Authorization", AuthenticationFilter.AUTHENTICATION_SCHEME+" "+token).build();
     }
 
     @Override

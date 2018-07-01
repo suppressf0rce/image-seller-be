@@ -15,27 +15,26 @@
                 <p>Already a member? <a href="#!/login">Sign In</a></p>
             </div>
 
-            <form>
+            <form name="registerForm">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="username" placeholder="Username" required>
+                    <input type="text" class="form-control" id="username" placeholder="Username" ng-model="user.username" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="password" placeholder="Password" required>
+                    <input type="password" class="form-control" id="password" placeholder="Password" ng-model="user.password" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="passwordConfirm" placeholder="Confirm a Password" required>
+                    <input type="password" class="form-control" id="passwordConfirm" onkeyup="checkPass(); return false;" placeholder="Confirm a Password" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <input type="email" class="form-control" id="ema1l" placeholder="Email" required>
+                    <input type="email" class="form-control" id="ema1l" placeholder="Email" ng-model="user.email" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <select id="selectCountry" class="form-control">
-                        <option>Select Country</option>
-                        <option ng-repeat="country in countries">{{country.niceName}}</option>
+                    <select id="selectCountry" class="form-control" ng-model="user.country">
+                        <option ng-repeat="country in countries" value="{{country.id}}">{{country.niceName}}</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <button class="btn  btn-primary btn-block">Sign In</button>
+                    <button class="btn  btn-primary btn-block" ng-click="registerForm.$valid && registerUser()">Register</button>
                 </div>
             </form>
         </div>

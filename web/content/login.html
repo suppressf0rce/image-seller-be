@@ -15,15 +15,15 @@
                 <p>Not a member? <a href="#!/register">Register</a></p>
             </div>
 
-            <form>
+            <form name="loginForm">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="username" placeholder="Username" required>
+                    <input type="text" class="form-control" id="username" placeholder="Username" ng-model="user.username" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="password" placeholder="Password" required>
+                    <input type="password" class="form-control" id="password" placeholder="Password" ng-model="user.password" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <button class="btn  btn-primary btn-block">Sign In</button>
+                    <button class="btn  btn-primary btn-block" ng-click="loginForm.$valid && loginUser()">Sign In</button>
                 </div>
             </form>
 
