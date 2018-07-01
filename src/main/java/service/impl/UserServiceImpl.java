@@ -89,6 +89,8 @@ public class UserServiceImpl implements UserService {
         if (decrypted != null) {
             int userId = Integer.valueOf(decrypted);
             UserDTO userDTO = getById(userId);
+            if(userDTO == null)
+                throw new BadRequestException();
             userDTO.setActivated(true);
             update(userDTO, null);
             try {
