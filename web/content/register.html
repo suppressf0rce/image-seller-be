@@ -1,0 +1,43 @@
+<div>
+    <div id="login-bg">
+        <img src="res/img/login-bg.jpg" width="100%" height="100%" class="centered-and-cropped darken-img"
+             alt="Search Background Image">
+    </div>
+
+    <div id="login-content" class="grey-overlay">
+        <div class="bg-white">
+            <div id="login-logo" align="center">
+                <h1><a href="#!/"><img src="res/img/favicon.png" width="45px" height="45"> ImageSeller</a></h1>
+            </div>
+
+            <div class="margin-top-24">
+                <h4>Register</h4>
+                <p>Already a member? <a href="#!/login">Sign In</a></p>
+            </div>
+
+            <form>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="username" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="password" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="passwordConfirm" placeholder="Confirm a Password" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-control" id="ema1l" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <select id="selectCountry" class="form-control">
+                        <option>Select Country</option>
+                        <option ng-repeat="country in countries">{{country.niceName}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="btn  btn-primary btn-block">Sign In</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
