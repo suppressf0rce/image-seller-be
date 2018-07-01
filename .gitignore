@@ -5,3 +5,6 @@
 *.ipr
 out**
 target**
+
+src/main/resources/mail.properties
+src/test

@@ -17,6 +17,7 @@ public class UserDTO extends AbstractDTO {
     private boolean passwordChange;
     private boolean blocked;
     private boolean suspended;
+    private boolean activated;
     private List<PermissionDTO> types;
 
 
@@ -94,4 +95,11 @@ public class UserDTO extends AbstractDTO {
         this.types = types;
     }
 
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
 }

@@ -9,5 +9,6 @@ public interface UserService extends Service<User, UserDTO> {
 
     Response login(UserDTO user);
     Response register(UserDTO user);
+    Response activate(String id);
 
 }

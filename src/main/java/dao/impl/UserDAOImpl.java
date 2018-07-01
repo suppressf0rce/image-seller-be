@@ -18,9 +18,9 @@ public class UserDAOImpl implements UserDAO {
 
 
     //SQL//
-    private static final String INSERT_SQL      = "INSERT INTO users(country_id, username, password, email, rating, password_change, blocked, suspended) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL      = "INSERT INTO users(country_id, username, password, email, rating, password_change, blocked, suspended, activated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String REMOVE_SQL      = "DELETE FROM users WHERE id = ?";
-    private static final String UPDATE_SQL      = "UPDATE users SET country_id = ?, username = ?, password = ?, email = ?, rating = ?, password_change = ?, blocked = ?, suspended = ? WHERE id = ?";
+    private static final String UPDATE_SQL      = "UPDATE users SET country_id = ?, username = ?, password = ?, email = ?, rating = ?, password_change = ?, blocked = ?, suspended = ?, activated = ? WHERE id = ?";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM users WHERE id = ?";
     private static final String GET_BY_USERNAME = "SELECT * FROM users WHERE username = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM users";
@@ -44,6 +44,7 @@ public class UserDAOImpl implements UserDAO {
         ps.setBoolean(6, object.isPasswordChange());
         ps.setBoolean(7,object.isBlocked());
         ps.setBoolean(8,object.isSuspended());
+        ps.setBoolean(9, object.isActivated());
         ps.execute();
 
         int result = 0;
@@ -77,7 +78,8 @@ public class UserDAOImpl implements UserDAO {
         ps.setBoolean(6, object.isPasswordChange());
         ps.setBoolean(7,object.isBlocked());
         ps.setBoolean(8,object.isSuspended());
-        ps.setInt(9, object.getId());
+        ps.setBoolean(9, object.isActivated());
+        ps.setInt(10, object.getId());
         ps.execute();
         connection.close();
     }
@@ -121,6 +123,7 @@ public class UserDAOImpl implements UserDAO {
         user.setPasswordChange(rs.getBoolean("password_change"));
         user.setBlocked(rs.getBoolean("blocked"));
         user.setSuspended(rs.getBoolean("suspended"));
+        user.setActivated(rs.getBoolean("activated"));
 
         return user;
     }

@@ -79,7 +79,7 @@ app.controller('ControllerLogin',function($scope, ServiceLogin, $location){
             localStorage.setItem("token", response.data.token);
             $location.path("/")
         }, function () {
-            alert("Incorrect credentials. Please try again.")
+            alert("Incorrect credentials or unactivated/suspended/blocked account. Please try again.")
         })
     }
 
@@ -123,7 +123,7 @@ app.controller('ControllerRegister',function($scope, ServiceRegister, $location)
             user.country = null;
 
             ServiceRegister.register(user).then(function (response) {
-                localStorage.setItem("token", response.data.token);
+                alert("We have sent you an activation mail.\n Please activate your account before using it.")
                 $location.path("/")
             }, function () {
                 alert("User with that username already exists!");
@@ -133,7 +133,7 @@ app.controller('ControllerRegister',function($scope, ServiceRegister, $location)
                 user.country = response.data;
 
                 ServiceRegister.register(user).then(function (response) {
-                    localStorage.setItem("token", response.data.token);
+                    alert("We have sent you an activation mail.\n Please activate your account before using it.")
                     $location.path("/")
                 }, function () {
                     alert("User with that username already exists!");

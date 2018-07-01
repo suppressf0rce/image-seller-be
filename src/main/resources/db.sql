@@ -192,6 +192,7 @@ create table users
   password_change      bool,
   blocked              bool,
   suspended            bool,
+  activated            bool,
   primary key (id)
 );
 
@@ -499,8 +500,8 @@ INSERT INTO `permissions`(`id`, `description`) VALUES
 /*==============================================================*/
 /* Data: users	                                                */
 /*==============================================================*/
-INSERT INTO `users`(`id`, `username`, `password`, `email`) VALUES
-  (1, 'admin', 'admin', 'admin@imageseller.com');
+INSERT INTO `users`(`id`, `username`, `password`, `email`, `activated`) VALUES
+  (1, 'admin', 'admin', 'admin@imageseller.com', 1);
 
 
 /*==============================================================*/

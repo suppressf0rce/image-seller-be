@@ -59,5 +59,9 @@ public class ControllerUser {
         return userService.convertToDTO(authUser, UserDTO.class);
     }
 
-
+    @GET
+    @Path("/activate/{id}")
+    public Response activate(@PathParam("id") String id){
+        return userService.activate(id);
+    }
 }

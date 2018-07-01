@@ -14,6 +14,7 @@ public class User extends Entity{
     private boolean passwordChange;
     private boolean blocked;
     private boolean suspended;
+    private boolean activated;
     private List<Permission> types;
 
 
@@ -89,5 +90,13 @@ public class User extends Entity{
 
     public void setTypes(List<Permission> types) {
         this.types = types;
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 }

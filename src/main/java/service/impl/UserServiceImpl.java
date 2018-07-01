@@ -1,16 +1,16 @@
 package service.impl;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 import dao.UserDAO;
-import dto.CountryDTO;
 import dto.UserDTO;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import model.Country;
 import model.User;
 import security.AuthenticationFilter;
+import service.MailService;
 import service.UserService;
+import utils.AES;
 import utils.Constants;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Key;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Inject
     private UserDAO userDAO;
+
+    @Inject
+    private MailService mailService;
 
     @Override
     public Response login(UserDTO userDTO) {
@@ -67,11 +72,32 @@ public class UserServiceImpl implements UserService {
         add(userDTO,null);
 
         // Issue a token for the user
-        String token = issueToken(userDTO.getUsername());
+        //TODO:Send email to the user
+        try {
+            mailService.sendMail("Activation link:\n"+ issueActivationLink(userDTO),Constants.APP_NAME+ " Activation", userDTO.getEmail());
+        } catch (Exception e) {
+            removeById(userDTO.getId(), null);
+            throw new BadRequestException(e.getMessage());
+        }
 
-        // Return the token on the response
-        String tokenObj = "{\"token\":\""+token+"\"}";
-        return Response.ok(tokenObj).header("Authorization", AuthenticationFilter.AUTHENTICATION_SCHEME+" "+token).build();
+        return Response.ok().build();
+    }
+
+    @Override
+    public Response activate(String id) {
+        String decrypted = AES.decrypt(id, Constants.API_KEY);
+        if (decrypted != null) {
+            int userId = Integer.valueOf(decrypted);
+            UserDTO userDTO = getById(userId);
+            userDTO.setActivated(true);
+            update(userDTO, null);
+            try {
+                return Response.seeOther(new URI(Constants.APP_LOGIN_PATH)).build();
+            } catch (URISyntaxException e) {
+                throw new BadRequestException();
+            }
+        }else
+            throw new BadRequestException("Unrecognized Activation Request");
     }
 
     @Override
@@ -138,6 +164,9 @@ public class UserServiceImpl implements UserService {
 
             if(!password.equals(user.getPassword()))
                 throw new Exception();
+
+            if(!user.isActivated())
+                throw new Exception();
         }else
             throw new Exception();
     }
@@ -169,5 +198,9 @@ public class UserServiceImpl implements UserService {
 
         //Builds the JWT and serializes it to a compact, URL-safe string
         return builder.compact();
+    }
+
+    private String issueActivationLink(UserDTO userDTO){
+        return Constants.REST + "users/activate/" + AES.encrypt(userDTO.getId()+"", Constants.API_KEY);
     }
 }
