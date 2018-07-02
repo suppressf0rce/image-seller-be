@@ -76,7 +76,10 @@ public class UserDAOImpl implements UserDAO {
     public void update(User object) throws SQLException{
         Connection connection = Database.getConnection();
         PreparedStatement ps = connection.prepareStatement(UPDATE_SQL);
-        ps.setInt(1, object.getCountry().getId());
+        if(object.getCountry() == null)
+            ps.setNull(1,Types.INTEGER);
+        else
+            ps.setInt(1, object.getCountry().getId());
         ps.setString(2, object.getUsername());
         ps.setString(3, object.getPassword());
         ps.setString(4, object.getEmail());
