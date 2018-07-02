@@ -10,8 +10,8 @@ import model.User;
 import security.AuthenticationFilter;
 import service.MailService;
 import service.UserService;
-import utils.AES;
 import utils.Constants;
+import utils.EncryptionUtil;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.Dependent;
@@ -85,12 +85,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response activate(String id) {
-        String decrypted = AES.decrypt(id, Constants.API_KEY);
+        String decrypted = EncryptionUtil.decode(id);
         if (decrypted != null) {
             int userId = Integer.valueOf(decrypted);
             UserDTO userDTO = getById(userId);
             if(userDTO == null)
-                throw new BadRequestException();
+                throw new BadRequestException("Unrecognized User ID");
             userDTO.setActivated(true);
             update(userDTO, null);
             try {
@@ -203,6 +203,6 @@ public class UserServiceImpl implements UserService {
     }
 
     private String issueActivationLink(UserDTO userDTO){
-        return Constants.REST + "users/activate/" + AES.encrypt(userDTO.getId()+"", Constants.API_KEY);
+        return Constants.REST + "users/activate/" + EncryptionUtil.encode(userDTO.getId()+"");
     }
 }
