@@ -8,6 +8,7 @@ import utils.Database;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,12 @@ public class UserDAOImpl implements UserDAO {
     private static final String UPDATE_SQL      = "UPDATE users SET country_id = ?, username = ?, password = ?, email = ?, rating = ?, password_change = ?, blocked = ?, suspended = ?, activated = ? WHERE id = ?";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM users WHERE id = ?";
     private static final String GET_BY_USERNAME = "SELECT * FROM users WHERE username = ?";
-    private static final String GET_ALL_SQL     = "SELECT * FROM users";
+    private static final String GET_ALL_SQL     = "SELECT users.id, permission_id, users.country_id, users.username, users.password, users.email, users.rating,users.password_change,users.blocked,users.suspended,users.activated " +
+                                                  "FROM user_types " +
+                                                  "RIGHT JOIN users ON user_id = users.id WHERE permission_id = ?";
+    private static final String GET_USERS_SQL   = "SELECT users.id, permission_id, users.country_id, users.username, users.password, users.email, users.rating,users.password_change,users.blocked,users.suspended,users.activated " +
+                                                  "FROM user_types " +
+                                                   "RIGHT JOIN users ON user_id = users.id WHERE permission_id IS NULL";
     private static final String GET_PERMISSIONS = "SELECT user_types.user_id, user_types.permission_id, permissions.description FROM user_types INNER JOIN permissions ON user_types.permission_id=permissions.id WHERE user_id = ?";
 
     @Inject
@@ -87,7 +93,43 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public List<User> getAll() throws SQLException{
         Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_USERS_SQL);
+        ResultSet rs = ps.executeQuery();
+        List<User> users = getUsersFromResultSet(rs);
+        connection.close();
+
+        return users;
+    }
+
+    @Override
+    public List<User> getAllAdmins() throws SQLException {
+        Connection connection = Database.getConnection();
         PreparedStatement ps = connection.prepareStatement(GET_ALL_SQL);
+        ps.setInt(1, 1);
+        ResultSet rs = ps.executeQuery();
+        List<User> users = getUsersFromResultSet(rs);
+        connection.close();
+
+        return users;
+    }
+
+    @Override
+    public List<User> getAllOperators() throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_ALL_SQL);
+        ps.setInt(1, 2);
+        ResultSet rs = ps.executeQuery();
+        List<User> users = getUsersFromResultSet(rs);
+        connection.close();
+
+        return users;
+    }
+
+    @Override
+    public List<User> getAllBuyers() throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_ALL_SQL);
+        ps.setInt(1, 3);
         ResultSet rs = ps.executeQuery();
         List<User> users = getUsersFromResultSet(rs);
         connection.close();

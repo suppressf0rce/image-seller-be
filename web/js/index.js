@@ -1,4 +1,4 @@
-var app = angular.module('ImageSeller', ['ngRoute']);
+var app = angular.module('ImageSeller', ['ngRoute', 'ngTable']);
 
 rest = "http://localhost:8080/ImageSeller/rest";
 
@@ -22,6 +22,11 @@ app.config(function($routeProvider){
         .when("/adminPanel",{
             templateUrl: "content/admin_panel.html",
             controller: 'ControllerAdminPanel'
+        })
+
+        .when("/adminPanel/tables/admins",{
+            templateUrl: "content/admin_panel_tables_admins.html",
+            controller: 'ControllerAdminPanelTablesAdmins'
         })
 
 
@@ -147,7 +152,7 @@ app.controller('ControllerRegister',function($scope, ServiceRegister, $location)
             user.country = null;
 
             ServiceRegister.register(user).then(function (response) {
-                alert("We have sent you an activation mail.\n Please activate your account before using it.")
+                alert("We have sent you an activation mail.\n Please activate your account before using it.");
                 $location.path("/")
             }, function () {
                 alert("User with that username already exists!");
@@ -157,7 +162,7 @@ app.controller('ControllerRegister',function($scope, ServiceRegister, $location)
                 user.country = response.data;
 
                 ServiceRegister.register(user).then(function (response) {
-                    alert("We have sent you an activation mail.\n Please activate your account before using it.")
+                    alert("We have sent you an activation mail.\n Please activate your account before using it.");
                     $location.path("/")
                 }, function () {
                     alert("User with that username already exists!");
@@ -263,7 +268,7 @@ app.controller('ControllerAdminPanel',function($scope, ServiceAdminPanel, $locat
         // Configure tooltips for collapsed side navigation
         $('.navbar-sidenav [data-toggle="tooltip"]').tooltip({
             template: '<div class="tooltip navbar-sidenav-tooltip" role="tooltip" style="pointer-events: none;"><div class="arrow"></div><div class="tooltip-inner"></div></div>'
-        })
+        });
         // Toggle the side navigation
         $("#sidenavToggler").click(function(e) {
             e.preventDefault();
@@ -293,7 +298,129 @@ app.controller('ControllerAdminPanel',function($scope, ServiceAdminPanel, $locat
             }
         });
         // Configure tooltips globally
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip();
+        // Smooth scrolling using jQuery easing
+        $(document).on('click', 'a.scroll-to-top', function(event) {
+            var $anchor = $(this);
+            $('html, body').stop().animate({
+                scrollTop: ($($anchor.attr('href')).offset().top)
+            }, 1000, 'easeInOutExpo');
+            event.preventDefault();
+        });
+    })(jQuery); // End of use strict
+});
+
+//AdminPanel Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesAdmins', function($http){
+    var service = {};
+
+    service.getAuthUser = function(){
+        return  $http.get(rest+"/users/token", { headers: {'Authorization': 'Bearer '+localStorage.getItem("token")}});
+    };
+
+    service.getAdmins = function () {
+        return  $http.get(rest+"/users/admins", { headers: {'Authorization': 'Bearer '+localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesAdmins',function($scope, NgTableParams,ServiceAdminPanelTablesAdmins, $location){
+
+    $scope.loggedIn = false;
+
+    $scope.checkIfAdmin = function(){
+        if($scope.loggedIn){
+
+            let result = false;
+            for(let i=0; i<$scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if(localStorage.getItem("token") !== null){
+        ServiceAdminPanelTablesAdmins.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if(!$scope.loggedIn){
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesAdmins.getAdmins().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].niceCountryName = ""; //initialization of new property
+
+                data[i].passwordChange = data[i].passwordChange?"Yes":"No";
+                data[i].suspended = data[i].suspended?"Yes":"No";
+                data[i].activated = data[i].activated?"Yes":"No";
+                data[i].blocked = data[i].blocked?"Yes":"No";
+
+                if(data[i].country !== null)
+                    data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
+            }
+            $scope.tableParams = new NgTableParams({}, { dataset: data});
+        })
+    }
+
+    //Other JQuery Functionality
+    (function($) {
+        "use strict"; // Start of use strict
+        // Configure tooltips for collapsed side navigation
+        $('.navbar-sidenav [data-toggle="tooltip"]').tooltip({
+            template: '<div class="tooltip navbar-sidenav-tooltip" role="tooltip" style="pointer-events: none;"><div class="arrow"></div><div class="tooltip-inner"></div></div>'
+        });
+        // Toggle the side navigation
+        $("#sidenavToggler").click(function(e) {
+            e.preventDefault();
+            $("body").toggleClass("sidenav-toggled");
+            $(".navbar-sidenav .nav-link-collapse").addClass("collapsed");
+            $(".navbar-sidenav .sidenav-second-level, .navbar-sidenav .sidenav-third-level").removeClass("show");
+        });
+        // Force the toggled class to be removed when a collapsible nav link is clicked
+        $(".navbar-sidenav .nav-link-collapse").click(function(e) {
+            e.preventDefault();
+            $("body").removeClass("sidenav-toggled");
+        });
+        // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
+        $('body.fixed-nav .navbar-sidenav, body.fixed-nav .sidenav-toggler, body.fixed-nav .navbar-collapse').on('mousewheel DOMMouseScroll', function(e) {
+            var e0 = e.originalEvent,
+                delta = e0.wheelDelta || -e0.detail;
+            this.scrollTop += (delta < 0 ? 1 : -1) * 30;
+            e.preventDefault();
+        });
+        // Scroll to top button appear
+        $(document).scroll(function() {
+            var scrollDistance = $(this).scrollTop();
+            if (scrollDistance > 100) {
+                $('.scroll-to-top').fadeIn();
+            } else {
+                $('.scroll-to-top').fadeOut();
+            }
+        });
+        // Configure tooltips globally
+        $('[data-toggle="tooltip"]').tooltip();
         // Smooth scrolling using jQuery easing
         $(document).on('click', 'a.scroll-to-top', function(event) {
             var $anchor = $(this);

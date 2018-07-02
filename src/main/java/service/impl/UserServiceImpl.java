@@ -148,6 +148,45 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDTO> getAllAdmins() {
+        try {
+            List<User> users = userDAO.getAllAdmins();
+            List<UserDTO> dtos = new ArrayList<>();
+            for(User user: users)
+                dtos.add(convertToDTO(user,UserDTO.class));
+            return dtos;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<UserDTO> getAllOperators() {
+        try {
+            List<User> users = userDAO.getAllOperators();
+            List<UserDTO> dtos = new ArrayList<>();
+            for(User user: users)
+                dtos.add(convertToDTO(user,UserDTO.class));
+            return dtos;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<UserDTO> getAllBuyers() {
+        try {
+            List<User> users = userDAO.getAllBuyers();
+            List<UserDTO> dtos = new ArrayList<>();
+            for(User user: users)
+                dtos.add(convertToDTO(user,UserDTO.class));
+            return dtos;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
     public UserDTO getById(int id) {
         try {
             return convertToDTO(userDAO.getById(id), UserDTO.class);

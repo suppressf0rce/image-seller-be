@@ -245,6 +245,32 @@
         </ol>
 
         <!-- Content Goes here-->
+        <!-- Example DataTables Card-->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fa fa-table"></i> Admins</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped" show-filter="true">
+                        <table ng-table="tableParams" class="table" show-filter="true">
+                            <tr ng-repeat="admin in $data">
+                                <td title="'ID'" filter="{ id: 'number'}" sortable="'id'">{{admin.id}}</td>
+                                <td title="'Username'" filter="{ username: 'text'}" sortable="'username'">{{admin.username}}</td>
+                                <td title="'Password'" filter="{ password: 'text'}" sortable="'password'">{{admin.password}}</td>
+                                <td title="'E-Mail'" filter="{ email: 'text'}" sortable="'email'">{{admin.email}}</td>
+                                <td title="'Country'" filter="{ niceCountryName: 'text'}" sortable="'niceCountryName'">{{admin.niceCountryName}}</td>
+                                <td title="'Rating'" filter="{ rating: 'text'}" sortable="'rating'">{{admin.rating}}</td>
+                                <td title="'Password Change'" filter="{ passwordChange: 'text'}" sortable="'passwordChange'">{{admin.passwordChange}}</td>
+                                <td title="'Blocked'" filter="{ blocked: 'text'}" sortable="'blocked'">{{admin.blocked}}</td>
+                                <td title="'Suspended'" filter="{ suspended: 'text'}" sortable="'suspended'">{{admin.suspended}}</td>
+                                <td title="'Activated'" filter="{ activated: 'text'}" sortable="'activated'">{{admin.activated}}</td>
+                            </tr>
+                        </table>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+        </div>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->

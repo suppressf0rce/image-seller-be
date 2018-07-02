@@ -3,9 +3,13 @@ package dao;
 import model.User;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public interface UserDAO extends AbstractDAO<User>{
 
     User findByUsername(String username) throws SQLException;
+    List<User> getAllAdmins() throws SQLException;
+    List<User> getAllOperators() throws SQLException;
+    List<User> getAllBuyers() throws SQLException;
 
 }

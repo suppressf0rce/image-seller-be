@@ -1,6 +1,7 @@
 package controllers;
 
 import dto.UserDTO;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import model.User;
 import security.AuthenticatedUser;
 import security.Secured;
@@ -33,11 +34,33 @@ public class ControllerUser {
         return userService.login(userDTO);
     }
 
-
     @GET
+    @Secured
     public List<UserDTO> getAll(){
         return userService.getAll();
     }
+
+    @GET
+    @Path("/admins")
+    @Secured
+    public List<UserDTO> getAllAdmins(){
+        return userService.getAllAdmins();
+    }
+
+    @GET
+    @Path("/operators")
+    @Secured
+    public List<UserDTO> getAllOperators(){
+        return userService.getAllOperators();
+    }
+
+    @GET
+    @Path("/buyers")
+    @Secured
+    public List<UserDTO> getAllBuyers(){
+        return userService.getAllBuyers();
+    }
+
 
     @GET
     @Path("/{id}")
