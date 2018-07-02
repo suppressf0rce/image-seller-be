@@ -252,7 +252,7 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped" show-filter="true">
-                        <table ng-table="tableParams" class="table" show-filter="true">
+                        <table ng-table="tableParams" class="table" show-filter="true" >
                             <tr ng-repeat="admin in $data">
                                 <td title="'ID'" filter="{ id: 'number'}" sortable="'id'">{{admin.id}}</td>
                                 <td title="'Username'" filter="{ username: 'text'}" sortable="'username'">{{admin.username}}</td>
