@@ -30,17 +30,17 @@ app.config(function ($routeProvider) {
         })
 
         .when("/adminPanel", {
-            templateUrl: "content/admin_panel.html",
+            templateUrl: "content/admin_panel/admin_panel.html",
             controller: 'ControllerAdminPanel'
         })
 
         .when("/adminPanel/tables/admins", {
-            templateUrl: "content/table_admins.html",
+            templateUrl: "content/admin_panel/table_admins.html",
             controller: 'ControllerAdminPanelTablesAdmins'
         })
 
         .when("/adminPanel/tables/admins/add", {
-            templateUrl: "content/admins_add.html",
+            templateUrl: "content/admin_panel/admins_add.html",
             controller: 'ControllerAdminPanelTablesAdminsAdd'
         })
 
@@ -53,7 +53,7 @@ app.config(function ($routeProvider) {
 app.run(function ($rootScope) {
     $rootScope.$on("$includeContentLoaded", function (event, templateName) {
         //Other JQuery Functionality
-        if (templateName === "content/admin_panel_footer.html") {
+        if (templateName === "content/admin_panel/admin_panel_footer.html") {
             (function ($) {
                 "use strict"; // Start of use strict
                 // Configure tooltips for collapsed side navigation
@@ -512,15 +512,26 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTablePara
 });
 
 
-/AdminPanel Tables Admins Page//
+/AdminPanel Tables Admins Add Page//
 //--------------------------------------------------------------------------------------------------------------------//
 app.factory('ServiceAdminPanelTablesAdminsAdd', function ($http) {
     var service = {};
+
+    service.getAllCountries = function () {
+        return $http.get(rest + "/country");
+    };
+
+    service.getCountryById = function (id) {
+        return $http.get(rest + "/country/" + id);
+    };
 
     service.getAuthUser = function () {
         return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
     };
 
+    service.add = function (user) {
+        return $http.post(rest + "/users/register", user)
+    };
 
     return service;
 });
@@ -565,6 +576,45 @@ app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableP
         });
     }
 
+    ServiceAdminPanelTablesAdminsAdd.getAllCountries().then(function (response) {
+        $scope.countries = response.data;
+    });
 
+    $scope.add = function () {
+        var user = $scope.user;
+        if (!checkPass()) {
+            alert("Passwords don't match");
+            $scope.loading = false;
+            return;
+        }
+
+        if (user.country == null) {
+            user.country = null;
+
+            ServiceAdminPanelTablesAdminsAdd.add(user).then(function (response) {
+                alert("Admin added successfully");
+                $location.path("/adminPanel/tables/admins")
+            }, function () {
+                alert("Error while creating admin, pleas try again!");
+            })
+        } else {
+            ServiceAdminPanelTablesAdminsAdd.getCountryById(user.country).then(function (response) {
+                user.country = response.data;
+
+                ServiceAdminPanelTablesAdminsAdd.add(user).then(function (response) {
+                    alert("Admin added successfully");
+                    $location.path("/adminPanel/tables/admins")
+                }, function () {
+                    alert("Error while creating admin, pleas try again!");
+                })
+            }, function () {
+                alert("Unrecognized country!");
+            });
+        }
+    }
+
+    $scope.cancel = function () {
+        $location.path("/adminPanel/tables/admins")
+    }
 
 });

@@ -154,6 +154,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO add(UserDTO object, User authUser) {
         try {
             object.setId(userDAO.add(convertToEntity(object, User.class)));
+            object.setPassword("Secret");
             return object;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
@@ -194,6 +195,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO update(UserDTO object, User authuser) {
         try {
             userDAO.update(convertToEntity(object,User.class));
+            object.setPassword("Secret");
             return object;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
@@ -205,8 +207,11 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAll();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users)
-                dtos.add(convertToDTO(user,UserDTO.class));
+            for(User user: users) {
+                UserDTO dto = convertToDTO(user, UserDTO.class);
+                dto.setPassword("Secret");
+                dtos.add(dto);
+            }
             return dtos;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
@@ -218,8 +223,11 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAllAdmins();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users)
-                dtos.add(convertToDTO(user,UserDTO.class));
+            for(User user: users){
+                UserDTO dto = convertToDTO(user, UserDTO.class);
+                dto.setPassword("Secret");
+                dtos.add(dto);
+            }
             return dtos;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
@@ -231,8 +239,11 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAllOperators();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users)
-                dtos.add(convertToDTO(user,UserDTO.class));
+            for(User user: users){
+                UserDTO dto = convertToDTO(user, UserDTO.class);
+                dto.setPassword("Secret");
+                dtos.add(dto);
+            }
             return dtos;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
@@ -244,8 +255,11 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAllBuyers();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users)
-                dtos.add(convertToDTO(user,UserDTO.class));
+            for(User user: users){
+                UserDTO dto = convertToDTO(user, UserDTO.class);
+                dto.setPassword("Secret");
+                dtos.add(dto);
+            }
             return dtos;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
@@ -255,7 +269,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getById(int id) {
         try {
-            return convertToDTO(userDAO.getById(id), UserDTO.class);
+            UserDTO dt = convertToDTO(userDAO.getById(id), UserDTO.class);
+            dt.setPassword("Secret");
+            return dt;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
         }

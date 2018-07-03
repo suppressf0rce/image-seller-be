@@ -1,0 +1,66 @@
+<div ng-include="'content/admin_panel/admin_panel_header.html'"></div>
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Navbar</li>
+        </ol>
+
+        <!--Content Goes here-->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-plus"></i> Add Admin
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group">
+                        <label for="userID">ID:</label>
+                        <input type="text" ng-model="user.id" ng-disabled="true" class="form-control" id="userID"
+                               placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="userUsername">Username:</label>
+                        <input type="text" ng-model="user.username" ng-required="true" ng-disabled="false"
+                               class="form-control" id="userUsername" placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" ng-model="user.password" ng-required="true" ng-disabled="false"
+                               class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordConfirm">Confirm Password:</label>
+                        <input type="password" ng-required="true" ng-disabled="false" class="form-control"
+                               onkeyup="checkPass(); return false;" id="passwordConfirm" placeholder="Confirm Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">E-Mail:</label>
+                        <input type="email" ng-model="user.email" ng-required="true" ng-disabled="false"
+                               class="form-control" id="userEmail" placeholder="E-Mail">
+                    </div>
+                    <div class="form-group">
+                        <label for="userSelectCountry">Country:</label>
+                        <select id="userSelectCountry" class="form-control" ng-model="user.country">
+                            <option ng-repeat="country in countries" value="{{country.id}}">{{country.niceName}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userChangePassword">Change Password:</label>
+                        <select id="userChangePassword" ng-init="user.changePassword = 'Yes'" class="form-control"
+                                ng-model="user.changePassword">
+                            <option ng-selected="true" value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <button ng-click="add()" type="submit" class="btn btn-primary">Add</button>
+                    <button ng-click="cancel()" class="btn btn-dark">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-include="'content/admin_panel/admin_panel_footer.html'"></div>
