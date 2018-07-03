@@ -47,6 +47,14 @@ public class ControllerUser {
         return userService.getAllAdmins();
     }
 
+    @DELETE
+    @Path("/admins")
+    @Secured
+    @Consumes("application/json")
+    public UserDTO deleteAdmin(UserDTO admin){
+        return userService.removeAdmin(admin, authUser);
+    }
+
     @GET
     @Path("/operators")
     @Secured

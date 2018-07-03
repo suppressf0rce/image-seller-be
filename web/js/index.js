@@ -29,6 +29,10 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesAdmins'
         })
 
+        .when("/adminPanel/tables/admins/add", {
+            templateUrl: "content/admins_add.html",
+            controller: 'ControllerAdminPanelTablesAdminsAdd'
+        })
 
         .otherwise({
             redirectTo: "/"
@@ -321,6 +325,10 @@ app.factory('ServiceAdminPanelTablesAdmins', function ($http) {
         return $http.get(rest + "/users/admins", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
     };
 
+    service.deleteAdmin = function (admin) {
+        return $http.delete(rest + "/users/admins",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
     return service;
 });
 
@@ -328,6 +336,9 @@ app.factory('ServiceAdminPanelTablesAdmins', function ($http) {
 app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTableParams, ServiceAdminPanelTablesAdmins, $location) {
 
     $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
 
     $scope.checkIfAdmin = function () {
         if ($scope.loggedIn) {
@@ -379,6 +390,101 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTablePara
                     data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
             }
             $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
     }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+        $scope.selectedAdmin = user;
+    };
+
+    $scope.doDelete = function (){
+        let user = {};
+        Object.assign(user,$scope.selectedAdmin);
+        user.passwordChange = user.passwordChange === "Yes";
+        user.suspended = user.suspended === "Yes";
+        user.activated = user.activated === "Yes";
+        user.blocked = user.blocked === "Yes";
+        delete user.niceCountryName;
+        ServiceAdminPanelTablesAdmins.deleteAdmin(user).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting admin.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/admins/add")
+    }
+
+
+});
+
+
+/AdminPanel Tables Admins Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesAdminsAdd', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesAdminsAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesAdminsAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }
+
+
+
 });

@@ -7,6 +7,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import model.User;
+import security.AuthUtils;
 import security.AuthenticationFilter;
 import service.MailService;
 import service.UserService;
@@ -17,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.URI;
@@ -74,7 +76,7 @@ public class UserServiceImpl implements UserService {
         // Issue a token for the user
         //TODO:Send email to the user
         try {
-            mailService.sendMail("Activation link:\n"+ issueActivationLink(userDTO),Constants.APP_NAME+ " Activation", userDTO.getEmail());
+            mailService.sendMail(Constants.getConfirmationMessage(userDTO.getUsername(),issueActivationLink(userDTO)),Constants.APP_NAME+ " Activation", userDTO.getEmail());
         } catch (Exception e) {
             removeById(userDTO.getId(), null);
             throw new BadRequestException(e.getMessage());
@@ -107,6 +109,24 @@ public class UserServiceImpl implements UserService {
         try {
             object.setId(userDAO.add(convertToEntity(object, User.class)));
             return object;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public UserDTO removeAdmin(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(!AuthUtils.checkIfAdmin(convertToEntity(admin, User.class)))
+            throw new BadRequestException("Target is not administrator!");
+
+        try {
+            userDAO.removeById(admin.getId());
+            UserDTO dto = new UserDTO();
+            dto.setId(admin.getId());
+            return dto;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
         }

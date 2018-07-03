@@ -279,3 +279,7 @@
     cursor: not-allowed;
     background-color: #fff;
 }
+
+td div{
+    width: 90px;
+}

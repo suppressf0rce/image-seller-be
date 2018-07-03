@@ -13,6 +13,7 @@
                 <i class="fa fa-table"></i> Admins
             </div>
             <div class="card-body">
+                <button class="btn btn-primary" ng-click="addClick()" type="button">Add Admin</button>
                 <div class="table-responsive">
                     <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
                            show-filter="true">
@@ -43,12 +44,57 @@
                                 <td title="'Activated'" filter="{ activated: 'text'}" sortable="'activated'">
                                     {{admin.activated}}
                                 </td>
+
+                                <td ng-if="view || edit || delete" >
+                                    <div>
+                                        <button ng-if="view"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="viewClick(admin)">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+
+                                        <button ng-if="edit"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="editClick(admin)">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+
+                                        <button ng-if="delete"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="deleteClick(admin)"
+                                                data-toggle="modal" data-target="#removeModal">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         </table>
                     </table>
                 </div>
             </div>
-            <div class="card-footer small text-muted">Last refresh: {{lastRefresh}}</div>
+            <div class="card-footer small text-muted">{{lastSync}}</div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Admin?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Are you sure that you want to delete Admin with ID:{{selectedAdmin.id}}</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doDelete()">Delete
+                </button>
+            </div>
         </div>
     </div>
 </div>

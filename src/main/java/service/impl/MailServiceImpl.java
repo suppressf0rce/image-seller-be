@@ -44,7 +44,7 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(String msg, String title, String recipient) throws Exception {
 
-        Session session = Session.getDefaultInstance(props,
+        Session session = Session.getInstance(props,
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(username,password);
@@ -52,12 +52,12 @@ public class MailServiceImpl implements MailService {
                 });
 
 
-        Message message = new MimeMessage(session);
+        MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress(username));
         message.setRecipients(Message.RecipientType.TO,
                 InternetAddress.parse(recipient));
         message.setSubject(title);
-        message.setText(msg);
+        message.setContent(msg, "text/html; charset=utf-8");
 
         Transport.send(message);
 
