@@ -201,6 +201,114 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO removeOperator(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(!AuthUtils.checkIfOperator(convertToEntity(admin, User.class)))
+            throw new BadRequestException("Target is not operater!");
+
+        try {
+            userDAO.removeById(admin.getId());
+            UserDTO dto = new UserDTO();
+            dto.setId(admin.getId());
+            return dto;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response addOperator(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+            throw new BadRequestException();
+
+        try {
+            User adminUs = convertToEntity(admin, User.class);
+            adminUs.setActivated(true);
+            int id = userDAO.add(adminUs);
+            userDAO.assignPermission(2,id);
+            return Response.ok().build();
+        } catch (SQLException e) {
+            throw new BadRequestException();
+        }
+    }
+
+    @Override
+    public UserDTO removeSeller(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(!AuthUtils.checkIfSeller(convertToEntity(admin, User.class)))
+            throw new BadRequestException("Target is not seller!");
+
+        try {
+            userDAO.removeById(admin.getId());
+            UserDTO dto = new UserDTO();
+            dto.setId(admin.getId());
+            return dto;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response addSeller(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+            throw new BadRequestException();
+
+        try {
+            User adminUs = convertToEntity(admin, User.class);
+            adminUs.setActivated(true);
+            int id = userDAO.add(adminUs);
+            userDAO.assignPermission(3,id);
+            return Response.ok().build();
+        } catch (SQLException e) {
+            throw new BadRequestException();
+        }
+    }
+
+    @Override
+    public UserDTO removeUser(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+
+        try {
+            userDAO.removeById(admin.getId());
+            UserDTO dto = new UserDTO();
+            dto.setId(admin.getId());
+            return dto;
+        } catch (SQLException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response addUser(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+            throw new BadRequestException();
+
+        try {
+            User adminUs = convertToEntity(admin, User.class);
+            adminUs.setActivated(true);
+            userDAO.add(adminUs);
+            return Response.ok().build();
+        } catch (SQLException e) {
+            throw new BadRequestException();
+        }
+    }
+
+    @Override
     public UserDTO removeById(int id, User authUser) {
         try {
             userDAO.removeById(id);
@@ -280,7 +388,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAllBuyers() {
+    public List<UserDTO> getAllSellers() {
         try {
             List<User> users = userDAO.getAllBuyers();
             List<UserDTO> dtos = new ArrayList<>();

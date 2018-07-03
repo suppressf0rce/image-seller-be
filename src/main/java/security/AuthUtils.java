@@ -21,4 +21,32 @@ public class AuthUtils {
         return result;
     }
 
+    public static boolean checkIfOperator(User user){
+
+        if(user.getTypes() == null)
+            return false;
+
+        boolean result = false;
+        for(Permission permission: user.getTypes()){
+            if(permission.getId() == 2)
+                result = true;
+        }
+
+        return result;
+    }
+
+    public static boolean checkIfSeller(User user){
+
+        if(user.getTypes() == null)
+            return false;
+
+        boolean result = false;
+        for(Permission permission: user.getTypes()){
+            if(permission.getId() == 3)
+                result = true;
+        }
+
+        return result;
+    }
+
 }

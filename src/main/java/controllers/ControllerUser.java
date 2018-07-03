@@ -1,7 +1,6 @@
 package controllers;
 
 import dto.UserDTO;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import model.User;
 import security.AuthenticatedUser;
 import security.Secured;
@@ -70,11 +69,58 @@ public class ControllerUser {
         return userService.getAllOperators();
     }
 
-    @GET
-    @Path("/buyers")
+    @DELETE
+    @Path("/operators")
     @Secured
-    public List<UserDTO> getAllBuyers(){
-        return userService.getAllBuyers();
+    @Consumes("application/json")
+    public UserDTO deleteOperator(UserDTO admin){
+        return userService.removeOperator(admin, authUser);
+    }
+
+    @POST
+    @Path("/operators")
+    @Consumes("application/json")
+    @Secured
+    public Response addOperator(UserDTO admin){
+        return userService.addOperator(admin, authUser);
+    }
+
+
+    @GET
+    @Path("/sellers")
+    @Secured
+    public List<UserDTO> getAllSellers(){
+        return userService.getAllSellers();
+    }
+
+    @DELETE
+    @Path("/sellers")
+    @Secured
+    @Consumes("application/json")
+    public UserDTO deleteSeller(UserDTO admin){
+        return userService.removeSeller(admin, authUser);
+    }
+
+    @POST
+    @Path("/sellers")
+    @Consumes("application/json")
+    @Secured
+    public Response addSeller(UserDTO admin){
+        return userService.addSeller(admin, authUser);
+    }
+
+    @DELETE
+    @Secured
+    @Consumes("application/json")
+    public UserDTO deleteUser(UserDTO admin){
+        return userService.removeUser(admin, authUser);
+    }
+
+    @POST
+    @Consumes("application/json")
+    @Secured
+    public Response addUser(UserDTO admin){
+        return userService.addUser(admin, authUser);
     }
 
 

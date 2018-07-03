@@ -49,6 +49,56 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesAdminsEdit'
         })
 
+        //
+        .when("/adminPanel/tables/operators", {
+            templateUrl: "content/admin_panel/table_operators.html",
+            controller: 'ControllerAdminPanelTablesOperators'
+        })
+
+        .when("/adminPanel/tables/operators/add", {
+            templateUrl: "content/admin_panel/operators_add.html",
+            controller: 'ControllerAdminPanelTablesOperatorsAdd'
+        })
+
+        .when("/adminPanel/tables/operators/edit/:id", {
+            templateUrl: "content/admin_panel/admins_edit.html",
+            controller: 'ControllerAdminPanelTablesAdminsEdit'
+        })
+
+        //
+
+        .when("/adminPanel/tables/sellers", {
+            templateUrl: "content/admin_panel/table_sellers.html",
+            controller: 'ControllerAdminPanelTablesSellers'
+        })
+
+        .when("/adminPanel/tables/sellers/add", {
+            templateUrl: "content/admin_panel/sellers_add.html",
+            controller: 'ControllerAdminPanelTablesSellersAdd'
+        })
+
+        .when("/adminPanel/tables/sellers/edit/:id", {
+            templateUrl: "content/admin_panel/admins_edit.html",
+            controller: 'ControllerAdminPanelTablesAdminsEdit'
+        })
+
+        //
+
+        .when("/adminPanel/tables/users", {
+            templateUrl: "content/admin_panel/table_users.html",
+            controller: 'ControllerAdminPanelTablesUsers'
+        })
+
+        .when("/adminPanel/tables/users/add", {
+            templateUrl: "content/admin_panel/users_add.html",
+            controller: 'ControllerAdminPanelTablesUsersAdd'
+        })
+
+        .when("/adminPanel/tables/users/edit/:id", {
+            templateUrl: "content/admin_panel/admins_edit.html",
+            controller: 'ControllerAdminPanelTablesAdminsEdit'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -418,7 +468,7 @@ app.factory('ServiceAdminPanelTablesAdmins', function ($http) {
 });
 
 
-app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTableParams, ServiceAdminPanelTablesAdmins, $location) {
+app.controller('ControllerAdminPanelTablesAdmins', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesAdmins, $location) {
 
     $scope.loggedIn = false;
     $scope.edit = false;
@@ -483,6 +533,7 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTablePara
 
     $scope.editClick = function (user) {
         //Handle edit user
+        $rootScope.lastReturnLink = "/adminPanel/tables/admins";
         $location.path("/adminPanel/tables/admins/edit/"+user.id);
     };
 
@@ -518,7 +569,7 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTablePara
 });
 
 
-/AdminPanel Tables Admins Add Page//
+//AdminPanel Tables Admins Add Page//
 //--------------------------------------------------------------------------------------------------------------------//
 app.factory('ServiceAdminPanelTablesAdminsAdd', function ($http) {
     var service = {};
@@ -605,7 +656,7 @@ app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableP
                 alert("Error while creating admin, please try again!");
             })
         } else {
-            ServiceAdminPanelTablesAdminsAdd.getCountryById(user.country).then(function (response) {
+            ServiceAdminPanelTablesAdminsAdd.getCountryById(user.country.id).then(function (response) {
                 user.country = response.data;
 
                 ServiceAdminPanelTablesAdminsAdd.add(user).then(function (response) {
@@ -626,7 +677,7 @@ app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableP
 });
 
 
-/AdminPanel Tables Admins Edit Page//
+//AdminPanel Tables Admins Edit Page//
 //--------------------------------------------------------------------------------------------------------------------//
 app.factory('ServiceAdminPanelTablesAdminsEdit', function ($http) {
     var service = {};
@@ -655,7 +706,7 @@ app.factory('ServiceAdminPanelTablesAdminsEdit', function ($http) {
 });
 
 
-app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, NgTableParams, ServiceAdminPanelTablesAdminsEdit, $location, $routeParams) {
+app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesAdminsEdit, $location, $routeParams) {
 
     $scope.checkIfAdmin = function () {
         if ($scope.loggedIn) {
@@ -708,7 +759,8 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, NgTable
     });
 
     $scope.add = function () {
-        var user = $scope.user;
+        var user = {};
+        Object.assign(user, $scope.user);
         if (!checkPass()) {
             alert("Passwords don't match");
             $scope.loading = false;
@@ -726,7 +778,7 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, NgTable
             user.country = null;
 
             ServiceAdminPanelTablesAdminsEdit.add(user).then(function (response) {
-                $location.path("/adminPanel/tables/admins")
+                $location.path($rootScope.lastReturnLink)
             }, function () {
                 alert("Error while editing admin, please try again!");
             })
@@ -735,7 +787,7 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, NgTable
                 user.country = response.data;
 
                 ServiceAdminPanelTablesAdminsEdit.add(user).then(function (response) {
-                    $location.path("/adminPanel/tables/admins")
+                    $location.path($rootScope.lastReturnLink)
                 }, function () {
                     alert("Error while editing admin, please try again!");
                 })
@@ -746,7 +798,696 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, NgTable
     };
 
     $scope.cancel = function () {
-        $location.path("/adminPanel/tables/admins")
+        $location.path($rootScope.lastReturnLink)
+    }
+
+});
+
+
+//AdminPanel Tables Operators Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesOperators', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getAdmins = function () {
+        return $http.get(rest + "/users/operators", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteAdmin = function (admin) {
+        return $http.delete(rest + "/users/operators",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesOperators', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesOperators, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesOperators.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesOperators.getAdmins().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].niceCountryName = ""; //initialization of new property
+
+                data[i].passwordChange = data[i].passwordChange ? "Yes" : "No";
+                data[i].suspended = data[i].suspended ? "Yes" : "No";
+                data[i].activated = data[i].activated ? "Yes" : "No";
+                data[i].blocked = data[i].blocked ? "Yes" : "No";
+
+                if (data[i].country !== null)
+                    data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
+            }
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+        $rootScope.lastReturnLink = "/adminPanel/tables/operators";
+        $location.path("/adminPanel/tables/operators/edit/"+user.id);
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+        $scope.selectedAdmin = user;
+    };
+
+    $scope.doDelete = function (){
+        let user = {};
+        Object.assign(user,$scope.selectedAdmin);
+        user.passwordChange = user.passwordChange === "Yes";
+        user.suspended = user.suspended === "Yes";
+        user.activated = user.activated === "Yes";
+        user.blocked = user.blocked === "Yes";
+        delete user.niceCountryName;
+        ServiceAdminPanelTablesOperators.deleteAdmin(user).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting admin.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/operators/add")
+    }
+
+
+});
+
+
+//AdminPanel Tables Operators Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesOperatorsAdd', function ($http) {
+    var service = {};
+
+    service.getAllCountries = function () {
+        return $http.get(rest + "/country");
+    };
+
+    service.getCountryById = function (id) {
+        return $http.get(rest + "/country/" + id);
+    };
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (user) {
+        return $http.post(rest + "/users/operators", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesOperatorsAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesOperatorsAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesOperatorsAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }
+
+    ServiceAdminPanelTablesOperatorsAdd.getAllCountries().then(function (response) {
+        $scope.countries = response.data;
+    });
+
+    $scope.add = function () {
+        var user = $scope.user;
+        if (!checkPass()) {
+            alert("Passwords don't match");
+            $scope.loading = false;
+            return;
+        }
+
+        user.passwordChange = user.passwordChange === 'Yes';
+
+        if (user.country == null) {
+            user.country = null;
+
+            ServiceAdminPanelTablesOperatorsAdd.add(user).then(function (response) {
+                $location.path("/adminPanel/tables/operators")
+            }, function () {
+                alert("Error while creating operator, please try again!");
+            })
+        } else {
+            ServiceAdminPanelTablesOperatorsAdd.getCountryById(user.country.id).then(function (response) {
+                user.country = response.data;
+
+                ServiceAdminPanelTablesOperatorsAdd.add(user).then(function (response) {
+                    $location.path("/adminPanel/tables/operators")
+                }, function () {
+                    alert("Error while creating operator, please try again!");
+                })
+            }, function () {
+                alert("Unrecognized country!");
+            });
+        }
+    };
+
+    $scope.cancel = function () {
+        $location.path("/adminPanel/tables/operators")
+    }
+
+});
+
+
+
+//AdminPanel Tables Sellers Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesSellers', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getAdmins = function () {
+        return $http.get(rest + "/users/sellers", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteAdmin = function (admin) {
+        return $http.delete(rest + "/users/sellers",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesSellers', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesSellers, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesSellers.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesSellers.getAdmins().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].niceCountryName = ""; //initialization of new property
+
+                data[i].passwordChange = data[i].passwordChange ? "Yes" : "No";
+                data[i].suspended = data[i].suspended ? "Yes" : "No";
+                data[i].activated = data[i].activated ? "Yes" : "No";
+                data[i].blocked = data[i].blocked ? "Yes" : "No";
+
+                if (data[i].country !== null)
+                    data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
+            }
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+        $rootScope.lastReturnLink = "/adminPanel/tables/sellers";
+        $location.path("/adminPanel/tables/sellers/edit/"+user.id);
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+        $scope.selectedAdmin = user;
+    };
+
+    $scope.doDelete = function (){
+        let user = {};
+        Object.assign(user,$scope.selectedAdmin);
+        user.passwordChange = user.passwordChange === "Yes";
+        user.suspended = user.suspended === "Yes";
+        user.activated = user.activated === "Yes";
+        user.blocked = user.blocked === "Yes";
+        delete user.niceCountryName;
+        ServiceAdminPanelTablesSellers.deleteAdmin(user).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting admin.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/sellers/add")
+    }
+
+
+});
+
+//AdminPanel Tables Sellers Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesSellersAdd', function ($http) {
+    var service = {};
+
+    service.getAllCountries = function () {
+        return $http.get(rest + "/country");
+    };
+
+    service.getCountryById = function (id) {
+        return $http.get(rest + "/country/" + id);
+    };
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (user) {
+        return $http.post(rest + "/users/sellers", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesSellersAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesSellersAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesSellersAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }
+
+    ServiceAdminPanelTablesSellersAdd.getAllCountries().then(function (response) {
+        $scope.countries = response.data;
+    });
+
+    $scope.add = function () {
+        var user = $scope.user;
+        if (!checkPass()) {
+            alert("Passwords don't match");
+            $scope.loading = false;
+            return;
+        }
+
+        user.passwordChange = user.passwordChange === 'Yes';
+
+        if (user.country == null) {
+            user.country = null;
+
+            ServiceAdminPanelTablesSellersAdd.add(user).then(function (response) {
+                $location.path("/adminPanel/tables/sellers")
+            }, function () {
+                alert("Error while creating seller, please try again!");
+            })
+        } else {
+            ServiceAdminPanelTablesSellersAdd.getCountryById(user.country.id).then(function (response) {
+                user.country = response.data;
+
+                ServiceAdminPanelTablesSellersAdd.add(user).then(function (response) {
+                    $location.path("/adminPanel/tables/sellers")
+                }, function () {
+                    alert("Error while creating seller, please try again!");
+                })
+            }, function () {
+                alert("Unrecognized country!");
+            });
+        }
+    };
+
+    $scope.cancel = function () {
+        $location.path("/adminPanel/tables/sellers")
+    }
+
+});
+
+
+//AdminPanel Tables Users Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesUsers', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getAdmins = function () {
+        return $http.get(rest + "/users/", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteAdmin = function (admin) {
+        return $http.delete(rest + "/users/",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesUsers', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesUsers, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesUsers.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesUsers.getAdmins().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].niceCountryName = ""; //initialization of new property
+
+                data[i].passwordChange = data[i].passwordChange ? "Yes" : "No";
+                data[i].suspended = data[i].suspended ? "Yes" : "No";
+                data[i].activated = data[i].activated ? "Yes" : "No";
+                data[i].blocked = data[i].blocked ? "Yes" : "No";
+
+                if (data[i].country !== null)
+                    data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
+            }
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+        $rootScope.lastReturnLink = "/adminPanel/tables/users";
+        $location.path("/adminPanel/tables/users/edit/"+user.id);
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+        $scope.selectedAdmin = user;
+    };
+
+    $scope.doDelete = function (){
+        let user = {};
+        Object.assign(user,$scope.selectedAdmin);
+        user.passwordChange = user.passwordChange === "Yes";
+        user.suspended = user.suspended === "Yes";
+        user.activated = user.activated === "Yes";
+        user.blocked = user.blocked === "Yes";
+        delete user.niceCountryName;
+        ServiceAdminPanelTablesUsers.deleteAdmin(user).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting admin.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/users/add")
+    }
+
+
+});
+
+//AdminPanel Tables Users Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesUsersAdd', function ($http) {
+    var service = {};
+
+    service.getAllCountries = function () {
+        return $http.get(rest + "/country");
+    };
+
+    service.getCountryById = function (id) {
+        return $http.get(rest + "/country/" + id);
+    };
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (user) {
+        return $http.post(rest + "/users", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesUsersAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesUsersAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesUsersAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }
+
+    ServiceAdminPanelTablesUsersAdd.getAllCountries().then(function (response) {
+        $scope.countries = response.data;
+    });
+
+    $scope.add = function () {
+        var user = $scope.user;
+        if (!checkPass()) {
+            alert("Passwords don't match");
+            $scope.loading = false;
+            return;
+        }
+
+        user.passwordChange = user.passwordChange === 'Yes';
+
+        if (user.country == null) {
+            user.country = null;
+
+            ServiceAdminPanelTablesUsersAdd.add(user).then(function (response) {
+                $location.path("/adminPanel/tables/users")
+            }, function () {
+                alert("Error while creating user, please try again!");
+            })
+        } else {
+            ServiceAdminPanelTablesUsersAdd.getCountryById(user.country.id).then(function (response) {
+                user.country = response.data;
+
+                ServiceAdminPanelTablesUsersAdd.add(user).then(function (response) {
+                    $location.path("/adminPanel/tables/users")
+                }, function () {
+                    alert("Error while creating user, please try again!");
+                })
+            }, function () {
+                alert("Unrecognized country!");
+            });
+        }
+    };
+
+    $scope.cancel = function () {
+        $location.path("/adminPanel/tables/users")
     }
 
 });

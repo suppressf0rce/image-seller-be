@@ -12,24 +12,24 @@
         <!--Content Goes here-->
         <div class="card mb-3">
             <div class="card-header">
-                <i class="fas fa-edit"></i> Edit Admin
+                <i class="fas fa-edit"></i> Edit User
             </div>
             <div class="card-body">
-                <form>
+                <form name="editForm">
                     <div class="form-group">
                         <label for="userID">ID:</label>
-                        <input type="text" ng-model="user.id" ng-disabled="true" class="form-control" id="userID"
+                        <input type="text" ng-model="user.id" ng-disabled="true" ng-required="false" class="form-control" id="userID"
                                placeholder="">
                     </div>
                     <div class="form-group">
                         <label for="userUsername">Username:</label>
                         <input type="text" ng-model="user.username" ng-required="true" ng-disabled="false"
-                               onkeyup="checkPass(); return false;" class="form-control" id="userUsername" placeholder="Username">
+                               class="form-control" id="userUsername" placeholder="Username">
                     </div>
                     <div class="form-group">
                         <label for="password">Password:</label>
                         <input type="password" ng-model="user.password" ng-required="true" ng-disabled="false"
-                               class="form-control" id="password" placeholder="Password">
+                               class="form-control" id="password" placeholder="Password" onkeyup="checkPass(); return false;">
                     </div>
                     <div class="form-group">
                         <label for="passwordConfirm">Confirm Password:</label>
@@ -44,20 +44,25 @@
                     <div class="form-group">
                         <label for="userSelectCountry">Country:</label>
                         <select id="userSelectCountry" class="form-control" ng-model="user.country"
-                        ng-options="country.niceName for country in countries track by country.id">
+                        ng-options="country.niceName for country in countries track by country.id" ng-required="false">
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userRating">Rating:</label>
+                        <input type="text" ng-model="user.rating" ng-disabled="true"
+                               class="form-control" id="userRating" placeholder="Rating" ng-required="false">
                     </div>
                     <div class="form-group">
                         <label for="userChangePassword">Change Password:</label>
                         <select id="userChangePassword" class="form-control"
-                                ng-model="user.passwordChange">
+                                ng-model="user.passwordChange" ng-required="false">
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="userBlocked">Blocked:</label>
-                        <select id="userBlocked" class="form-control"
+                        <select id="userBlocked" class="form-control" ng-required="false"
                                 ng-model="user.blocked">
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
@@ -66,20 +71,20 @@
                     <div class="form-group">
                         <label for="userSuspended">Suspended:</label>
                         <select id="userSuspended" class="form-control"
-                                ng-model="user.suspended">
+                                ng-model="user.suspended" ng-required="false">
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="userActivated">Activated:</label>
-                        <select id="userActivated" class="form-control"
+                        <select id="userActivated" class="form-control" ng-required="false"
                                 ng-model="user.activated">
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
                     </div>
-                    <button ng-click="add()" type="submit" class="btn btn-primary">Edit</button>
+                    <button ng-click="editForm.$valid && add()" type="submit" class="btn btn-primary">Edit</button>
                     <button ng-click="cancel()" class="btn btn-dark">Cancel</button>
                 </form>
             </div>

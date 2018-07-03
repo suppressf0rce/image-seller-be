@@ -1,0 +1,101 @@
+<ng-include src="'content/admin_panel/admin_panel_header.html'"></ng-include>
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Navbar</li>
+        </ol>
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fa fa-table"></i> Operators
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" ng-click="addClick()" type="button">Add Operator</button>
+                <div class="table-responsive">
+                    <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
+                           show-filter="true">
+                        <table ng-table="tableParams" class="table" show-filter="true">
+                            <tr ng-repeat="admin in $data">
+                                <td title="'ID'" filter="{ id: 'number'}" sortable="'id'">{{admin.id}}</td>
+                                <td title="'Username'" filter="{ username: 'text'}" sortable="'username'">
+                                    {{admin.username}}
+                                </td>
+                                <td title="'Password'" filter="{ password: 'text'}" sortable="'password'">
+                                    {{admin.password}}
+                                </td>
+                                <td title="'E-Mail'" filter="{ email: 'text'}" sortable="'email'">{{admin.email}}</td>
+                                <td title="'Country'" filter="{ niceCountryName: 'text'}" sortable="'niceCountryName'">
+                                    {{admin.niceCountryName}}
+                                </td>
+                                <td title="'Rating'" filter="{ rating: 'text'}" sortable="'rating'">{{admin.rating}}
+                                </td>
+                                <td title="'Password Change'" filter="{ passwordChange: 'text'}"
+                                    sortable="'passwordChange'">{{admin.passwordChange}}
+                                </td>
+                                <td title="'Blocked'" filter="{ blocked: 'text'}" sortable="'blocked'">
+                                    {{admin.blocked}}
+                                </td>
+                                <td title="'Suspended'" filter="{ suspended: 'text'}" sortable="'suspended'">
+                                    {{admin.suspended}}
+                                </td>
+                                <td title="'Activated'" filter="{ activated: 'text'}" sortable="'activated'">
+                                    {{admin.activated}}
+                                </td>
+
+                                <td ng-if="view || edit || delete" >
+                                    <div>
+                                        <button ng-if="view"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="viewClick(admin)">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+
+                                        <button ng-if="edit"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="editClick(admin)">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+
+                                        <button ng-if="delete"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="deleteClick(admin)"
+                                                data-toggle="modal" data-target="#removeModal">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer small text-muted">{{lastSync}}</div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Operator?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Are you sure that you want to delete Operator with ID:{{selectedAdmin.id}}</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doDelete()">Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'content/admin_panel/admin_panel_footer.html'"></ng-include>
