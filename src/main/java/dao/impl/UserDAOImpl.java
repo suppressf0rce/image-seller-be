@@ -24,6 +24,7 @@ public class UserDAOImpl implements UserDAO {
     private static final String UPDATE_SQL      = "UPDATE users SET country_id = ?, username = ?, password = ?, email = ?, rating = ?, password_change = ?, blocked = ?, suspended = ?, activated = ? WHERE id = ?";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM users WHERE id = ?";
     private static final String GET_BY_USERNAME = "SELECT * FROM users WHERE username = ?";
+    private static final String GET_BY_EMAIL    = "SELECT * FROM users WHERE email = ?";
     private static final String GET_ALL_SQL     = "SELECT users.id, permission_id, users.country_id, users.username, users.password, users.email, users.rating,users.password_change,users.blocked,users.suspended,users.activated " +
                                                   "FROM user_types " +
                                                   "RIGHT JOIN users ON user_id = users.id WHERE permission_id = ?";
@@ -206,6 +207,22 @@ public class UserDAOImpl implements UserDAO {
         Connection connection = Database.getConnection();
         PreparedStatement ps = connection.prepareStatement(GET_BY_USERNAME);
         ps.setString(1, username);
+        ResultSet rs = ps.executeQuery();
+        User user = null;
+
+        if(rs.next())
+            user = getUserFromResultSet(rs);
+
+        connection.close();
+
+        return user;
+    }
+
+    @Override
+    public User findByEmail(String email) throws SQLException{
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_BY_EMAIL);
+        ps.setString(1, email);
         ResultSet rs = ps.executeQuery();
         User user = null;
 

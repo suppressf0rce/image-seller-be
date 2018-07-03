@@ -12,6 +12,11 @@ public interface UserService extends Service<User, UserDTO> {
     Response register(UserDTO user);
     Response activate(String id);
 
+    Response sendResetMail(UserDTO user);
+    Response resetPassword(UserDTO user, String requestID);
+
+    String getResetLink(User user);
+
     List<UserDTO> getAllAdmins();
     List<UserDTO> getAllOperators();
     List<UserDTO> getAllBuyers();

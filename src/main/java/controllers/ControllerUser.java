@@ -95,4 +95,25 @@ public class ControllerUser {
     public Response activate(@PathParam("id") String id){
         return userService.activate(id);
     }
+
+    @POST
+    @Path("/reset")
+    @Consumes("application/json")
+    public Response sendResetMail(UserDTO user){
+        return userService.sendResetMail(user);
+    }
+
+    @GET
+    @Path("/reset")
+    @Secured
+    public String getResetRequestID(){
+        return userService.getResetLink(authUser);
+    }
+
+    @POST
+    @Path("/reset/{requestID}")
+    @Consumes("application/json")
+    public Response resetMail(UserDTO user, @PathParam("requestID") String requestID){
+        return userService.resetPassword(user, requestID);
+    }
 }

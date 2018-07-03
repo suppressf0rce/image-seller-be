@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
@@ -102,6 +103,51 @@ public class UserServiceImpl implements UserService {
             }
         }else
             throw new BadRequestException("Unrecognized Activation Request");
+    }
+
+    @Override
+    public Response sendResetMail(UserDTO user) {
+        if(user.getEmail() == null)
+            throw new BadRequestException();
+
+        try {
+            User userFound = userDAO.findByEmail(user.getEmail());
+            if(userFound == null)
+                throw new SQLException();
+
+            try {
+                mailService.sendMail(Constants.getResetMessage(userFound.getUsername(), issueResetLink(userFound)), Constants.APP_NAME+" - Password Reset", userFound.getEmail());
+                return Response.ok().build();
+            } catch (Exception e) {
+                throw new BadRequestException("Incorrect Email Address");
+            }
+
+        } catch (SQLException e) {
+            throw new BadRequestException("User with that email doesn't exist");
+        }
+    }
+
+    @Override
+    public Response resetPassword(UserDTO user, String requestID) {
+        if(user.getPassword() == null)
+            throw new BadRequestException("Password can't be null");
+
+        try {
+            User userFound = userDAO.getById(Integer.valueOf(EncryptionUtil.decode(requestID)));
+            userFound.setPassword(user.getPassword());
+            userFound.setPasswordChange(false);
+            userDAO.update(userFound);
+
+            // Issue a token for the user
+            String token = issueToken(userFound.getUsername());
+
+            // Return the token on the response
+            String tokenObj = "{\"token\":\""+token+"\"}";
+
+            return Response.ok(tokenObj).build();
+        }catch (Exception e){
+            throw new BadRequestException("Unknown request ID");
+        }
     }
 
     @Override
@@ -263,5 +309,15 @@ public class UserServiceImpl implements UserService {
 
     private String issueActivationLink(UserDTO userDTO){
         return Constants.REST + "users/activate/" + EncryptionUtil.encode(userDTO.getId()+"");
+    }
+
+    private String issueResetLink(User user){
+        return Constants.WEBSITE + "reset/" + EncryptionUtil.encode(user.getId()+"");
+    }
+
+    @Override
+    public String getResetLink(User user) {
+        String link =  EncryptionUtil.encode(user.getId()+"");
+        return "{\"requestID\": \""+link+"\"}";
     }
 }

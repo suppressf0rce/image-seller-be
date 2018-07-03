@@ -9,6 +9,16 @@ app.config(function ($routeProvider) {
             controller: 'ControllerHome'
         })
 
+        .when("/resetPasswordRequest", {
+            templateUrl: "content/reset_password_request.html",
+            controller: 'ControllerPasswordResetRequest'
+        })
+
+        .when("/reset/:requestID",{
+            templateUrl: "content/password_reset.html",
+            controller: 'ControllerPasswordReset'
+        })
+
         .when("/login", {
             templateUrl: "content/login.html",
             controller: 'ControllerLogin'
@@ -103,6 +113,10 @@ app.factory('ServiceHome', function ($http) {
         return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
     };
 
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
     return service;
 });
 
@@ -115,6 +129,13 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
         ServiceHome.getAuthUser().then(function (response) {
             $scope.loggedUser = response.data;
             $scope.loggedIn = true;
+
+            if($scope.loggedUser.passwordChange){
+                ServiceHome.getResetLink().then(function (response) {
+                    console.log(response);
+                    $location.path("/reset/"+response.data.requestID)
+                })
+            }
         })
     }
 
@@ -141,6 +162,65 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
 
 });
 
+//Password Reset Request Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServicePasswordResetRequest', function ($http) {
+    var service = {};
+
+    service.request = function (user) {
+        return $http.post(rest + "/users/reset/", user)
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerPasswordResetRequest', function ($scope, ServicePasswordResetRequest, $location) {
+
+    $scope.sendRequest = function () {
+        ServicePasswordResetRequest.request($scope.user).then(function () {
+            alert("We have sent you password reset link to your mail\nPlease check it out to proceed");
+            $location.path("/")
+        }, function () {
+            alert("Incorrect email request. Please try again.")
+        })
+    }
+
+});
+
+
+//Password Reset Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServicePasswordReset', function ($http) {
+    var service = {};
+
+    service.sendReset = function (user, requestID) {
+        return $http.post(rest + "/users/reset/"+requestID, user)
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerPasswordReset', function ($scope, ServicePasswordReset, $location, $routeParams) {
+
+    $scope.resetPassword = function () {
+        if (!checkPass()) {
+            alert("Passwords don't match");
+            return;
+        }
+
+        ServicePasswordReset.sendReset($scope.user, $routeParams.requestID).then(function (response) {
+            localStorage.setItem("token", response.data.token);
+            console.log(response.data);
+            $location.path("/")
+        }, function () {
+            alert("Bad password reset request!");
+            $location.path("/")
+        })
+    }
+
+});
 
 //Login Page//
 //--------------------------------------------------------------------------------------------------------------------//
