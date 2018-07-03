@@ -44,6 +44,11 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesAdminsAdd'
         })
 
+        .when("/adminPanel/tables/admins/edit/:id", {
+            templateUrl: "content/admin_panel/admins_edit.html",
+            controller: 'ControllerAdminPanelTablesAdminsEdit'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -478,6 +483,7 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, NgTablePara
 
     $scope.editClick = function (user) {
         //Handle edit user
+        $location.path("/adminPanel/tables/admins/edit/"+user.id);
     };
 
     $scope.viewClick = function (user) {
@@ -530,7 +536,7 @@ app.factory('ServiceAdminPanelTablesAdminsAdd', function ($http) {
     };
 
     service.add = function (user) {
-        return $http.post(rest + "/users/register", user)
+        return $http.post(rest + "/users/admins", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -588,30 +594,156 @@ app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableP
             return;
         }
 
+        user.passwordChange = user.passwordChange === 'Yes';
+
         if (user.country == null) {
             user.country = null;
 
             ServiceAdminPanelTablesAdminsAdd.add(user).then(function (response) {
-                alert("Admin added successfully");
                 $location.path("/adminPanel/tables/admins")
             }, function () {
-                alert("Error while creating admin, pleas try again!");
+                alert("Error while creating admin, please try again!");
             })
         } else {
             ServiceAdminPanelTablesAdminsAdd.getCountryById(user.country).then(function (response) {
                 user.country = response.data;
 
                 ServiceAdminPanelTablesAdminsAdd.add(user).then(function (response) {
-                    alert("Admin added successfully");
                     $location.path("/adminPanel/tables/admins")
                 }, function () {
-                    alert("Error while creating admin, pleas try again!");
+                    alert("Error while creating admin, please try again!");
                 })
             }, function () {
                 alert("Unrecognized country!");
             });
         }
+    };
+
+    $scope.cancel = function () {
+        $location.path("/adminPanel/tables/admins")
     }
+
+});
+
+
+/AdminPanel Tables Admins Edit Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesAdminsEdit', function ($http) {
+    var service = {};
+
+    service.getAllCountries = function () {
+        return $http.get(rest + "/country");
+    };
+
+    service.getCountryById = function (id) {
+        return $http.get(rest + "/country/" + id);
+    };
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getAdmin = function(id){
+        return $http.get(rest + "/users/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, NgTableParams, ServiceAdminPanelTablesAdminsEdit, $location, $routeParams) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesAdminsEdit.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }
+
+    ServiceAdminPanelTablesAdminsEdit.getAllCountries().then(function (response) {
+        $scope.countries = response.data;
+    });
+
+    ServiceAdminPanelTablesAdminsEdit.getAdmin($routeParams.id).then(function (response) {
+        $scope.user = response.data;
+        $scope.confirmPassword = $scope.user.password;
+        $scope.user.passwordChange = $scope.user.passwordChange?'Yes':'No';
+        $scope.user.blocked = $scope.user.blocked?'Yes':'No';
+        $scope.user.suspended = $scope.user.suspended?'Yes':'No';
+        $scope.user.activated = $scope.user.activated?'Yes':'No';
+    });
+
+    $scope.add = function () {
+        var user = $scope.user;
+        if (!checkPass()) {
+            alert("Passwords don't match");
+            $scope.loading = false;
+            return;
+        }
+
+        user.passwordChange = user.passwordChange === 'Yes';
+        user.blocked = user.blocked === 'Yes';
+        user.suspended = user.suspended === 'Yes';
+        user.activated = user.activated === 'Yes';
+        if(user.password === "Secret")
+            delete user.password;
+
+        if (user.country == null) {
+            user.country = null;
+
+            ServiceAdminPanelTablesAdminsEdit.add(user).then(function (response) {
+                $location.path("/adminPanel/tables/admins")
+            }, function () {
+                alert("Error while editing admin, please try again!");
+            })
+        } else {
+            ServiceAdminPanelTablesAdminsEdit.getCountryById(user.country.id).then(function (response) {
+                user.country = response.data;
+
+                ServiceAdminPanelTablesAdminsEdit.add(user).then(function (response) {
+                    $location.path("/adminPanel/tables/admins")
+                }, function () {
+                    alert("Error while editing admin, please try again!");
+                })
+            }, function () {
+                alert("Unrecognized country!");
+            });
+        }
+    };
 
     $scope.cancel = function () {
         $location.path("/adminPanel/tables/admins")

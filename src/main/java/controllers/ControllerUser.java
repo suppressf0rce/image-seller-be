@@ -55,6 +55,14 @@ public class ControllerUser {
         return userService.removeAdmin(admin, authUser);
     }
 
+    @POST
+    @Path("/admins")
+    @Consumes("application/json")
+    @Secured
+    public Response addAdmin(UserDTO admin){
+        return userService.addAdmin(admin, authUser);
+    }
+
     @GET
     @Path("/operators")
     @Secured
@@ -115,5 +123,11 @@ public class ControllerUser {
     @Consumes("application/json")
     public Response resetMail(UserDTO user, @PathParam("requestID") String requestID){
         return userService.resetPassword(user, requestID);
+    }
+
+    @PUT
+    @Consumes("application/json")
+    public UserDTO editUser(UserDTO user){
+        return userService.update(user, authUser);
     }
 }

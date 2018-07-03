@@ -1,5 +1,6 @@
 package dao;
 
+import model.Permission;
 import model.User;
 
 import java.sql.SQLException;
@@ -13,4 +14,5 @@ public interface UserDAO extends AbstractDAO<User>{
     List<User> getAllOperators() throws SQLException;
     List<User> getAllBuyers() throws SQLException;
 
+    void assignPermission(int permId, int userId) throws SQLException;
 }

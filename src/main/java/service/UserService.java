@@ -22,4 +22,5 @@ public interface UserService extends Service<User, UserDTO> {
     List<UserDTO> getAllBuyers();
 
     UserDTO removeAdmin(UserDTO admin, User authUser);
+    Response addAdmin(UserDTO admin, User authUser);
 }

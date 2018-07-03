@@ -20,6 +20,7 @@ public class UserDAOImpl implements UserDAO {
 
     //SQL//
     private static final String INSERT_SQL      = "INSERT INTO users(country_id, username, password, email, rating, password_change, blocked, suspended, activated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String ASSIGN_PERM_SQL = "INSERT INTO user_types(permission_id,user_id) VALUES (?, ?)";
     private static final String REMOVE_SQL      = "DELETE FROM users WHERE id = ?";
     private static final String UPDATE_SQL      = "UPDATE users SET country_id = ?, username = ?, password = ?, email = ?, rating = ?, password_change = ?, blocked = ?, suspended = ?, activated = ? WHERE id = ?";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM users WHERE id = ?";
@@ -232,5 +233,17 @@ public class UserDAOImpl implements UserDAO {
         connection.close();
 
         return user;
+    }
+
+    @Override
+    public void assignPermission(int permId, int userId) throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(ASSIGN_PERM_SQL);
+
+        ps.setInt(1, permId);
+        ps.setInt(2, userId);
+        ps.execute();
+
+        connection.close();
     }
 }

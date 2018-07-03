@@ -12,7 +12,7 @@
         <!--Content Goes here-->
         <div class="card mb-3">
             <div class="card-header">
-                <i class="fas fa-plus"></i> Add Admin
+                <i class="fas fa-edit"></i> Edit Admin
             </div>
             <div class="card-body">
                 <form>
@@ -24,7 +24,7 @@
                     <div class="form-group">
                         <label for="userUsername">Username:</label>
                         <input type="text" ng-model="user.username" ng-required="true" ng-disabled="false"
-                               class="form-control" id="userUsername" placeholder="Username">
+                               onkeyup="checkPass(); return false;" class="form-control" id="userUsername" placeholder="Username">
                     </div>
                     <div class="form-group">
                         <label for="password">Password:</label>
@@ -33,7 +33,7 @@
                     </div>
                     <div class="form-group">
                         <label for="passwordConfirm">Confirm Password:</label>
-                        <input type="password" ng-required="true" ng-disabled="false" class="form-control"
+                        <input type="password" ng-required="true" ng-model="confirmPassword" ng-disabled="false" class="form-control"
                                onkeyup="checkPass(); return false;" id="passwordConfirm" placeholder="Confirm Password">
                     </div>
                     <div class="form-group">
@@ -43,20 +43,43 @@
                     </div>
                     <div class="form-group">
                         <label for="userSelectCountry">Country:</label>
-                        <select id="userSelectCountry" class="form-control" ng-model="user.country">
-                            <option ng-repeat="country in countries" value="{{country.id}}">{{country.niceName}}
-                            </option>
+                        <select id="userSelectCountry" class="form-control" ng-model="user.country"
+                        ng-options="country.niceName for country in countries track by country.id">
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="userChangePassword">Change Password:</label>
-                        <select id="userChangePassword" ng-init="user.passwordChange = 'Yes'" class="form-control"
+                        <select id="userChangePassword" class="form-control"
                                 ng-model="user.passwordChange">
-                            <option ng-selected="true" value="Yes">Yes</option>
+                            <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
                     </div>
-                    <button ng-click="add()" type="submit" class="btn btn-primary">Add</button>
+                    <div class="form-group">
+                        <label for="userBlocked">Blocked:</label>
+                        <select id="userBlocked" class="form-control"
+                                ng-model="user.blocked">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userSuspended">Suspended:</label>
+                        <select id="userSuspended" class="form-control"
+                                ng-model="user.suspended">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userActivated">Activated:</label>
+                        <select id="userActivated" class="form-control"
+                                ng-model="user.activated">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <button ng-click="add()" type="submit" class="btn btn-primary">Edit</button>
                     <button ng-click="cancel()" class="btn btn-dark">Cancel</button>
                 </form>
             </div>

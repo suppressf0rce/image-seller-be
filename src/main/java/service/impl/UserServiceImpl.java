@@ -6,6 +6,7 @@ import dto.UserDTO;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import model.Permission;
 import model.User;
 import security.AuthUtils;
 import security.AuthenticationFilter;
@@ -19,6 +20,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
@@ -180,6 +182,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Response addAdmin(UserDTO admin, User authUser) {
+        if(!AuthUtils.checkIfAdmin(authUser))
+            throw new NotAuthorizedException("");
+
+        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+            throw new BadRequestException();
+
+        try {
+            User adminUs = convertToEntity(admin, User.class);
+            adminUs.setActivated(true);
+            int id = userDAO.add(adminUs);
+            userDAO.assignPermission(1,id);
+            return Response.ok().build();
+        } catch (SQLException e) {
+            throw new BadRequestException();
+        }
+    }
+
+    @Override
     public UserDTO removeById(int id, User authUser) {
         try {
             userDAO.removeById(id);
@@ -194,7 +215,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO update(UserDTO object, User authuser) {
         try {
-            userDAO.update(convertToEntity(object,User.class));
+            User user = userDAO.getById(object.getId());
+            User updatingUser = convertToEntity(object,User.class);
+
+            if(updatingUser.getPassword() == null)
+                updatingUser.setPassword(user.getPassword());
+
+
+            userDAO.update(updatingUser);
+
             object.setPassword("Secret");
             return object;
         } catch (SQLException e) {
