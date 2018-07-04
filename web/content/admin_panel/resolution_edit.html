@@ -1,0 +1,49 @@
+<div ng-include="'content/admin_panel/admin_panel_header.html'"></div>
+<div class="content-wrapper">
+    <div class="container-fluid">
+
+        <!--Content Goes here-->
+        <div class="card mb-3 margin-top-48">
+            <div class="card-header">
+                <i class="fas fa-edit"></i> Edit Resolution
+            </div>
+            <div class="card-body">
+                <form name="editForm">
+                    <div class="form-group">
+                        <label for="resolutionID">ID:</label>
+                        <input type="text" ng-model="resolution.id" ng-disabled="true" ng-required="false" class="form-control" id="resolutionID"
+                               placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionDescription">Description:</label>
+                        <input type="text" ng-model="resolution.description" ng-required="true" ng-disabled="false"
+                               class="form-control" id="resolutionDescription" placeholder="Description">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionWidth">Width:</label>
+                        <input type="number" ng-model="resolution.width" ng-required="true" ng-disabled="false"
+                               class="form-control" id="resolutionWidth" placeholder="Width">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionHeight">Height:</label>
+                        <input type="number" ng-model="resolution.height" ng-required="true" ng-disabled="false"
+                               class="form-control" id="resolutionHeight" placeholder="Height">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionMinPrice">Minimum Price:</label>
+                        <input type="number" ng-model="resolution.minPrice" ng-required="true" ng-disabled="false"
+                               class="form-control" id="resolutionMinPrice" placeholder="Minimum Price">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionMaxPrice">Maximum Price:</label>
+                        <input type="number" ng-model="resolution.maxPrice" ng-required="true" ng-disabled="false"
+                               class="form-control" id="resolutionMaxPrice" placeholder="Maximum Price">
+                    </div>
+                    <button ng-click="editForm.$valid && add()" type="submit" class="btn btn-primary">Edit</button>
+                    <button ng-click="cancel()" class="btn btn-dark">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-include="'content/admin_panel/admin_panel_footer.html'"></div>

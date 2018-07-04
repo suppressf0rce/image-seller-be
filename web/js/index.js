@@ -138,6 +138,22 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesCategoryEdit'
         })
 
+        //
+        .when("/adminPanel/tables/resolutions", {
+            templateUrl: "content/admin_panel/table_resolutions.html",
+            controller: 'ControllerAdminPanelTablesResolutions'
+        })
+
+        .when("/adminPanel/tables/resolutions/add", {
+            templateUrl: "content/admin_panel/resolution_add.html",
+            controller: 'ControllerAdminPanelTablesResolutionsAdd'
+        })
+
+        .when("/adminPanel/tables/resolutions/edit/:id", {
+            templateUrl: "content/admin_panel/resolution_edit.html",
+            controller: 'ControllerAdminPanelTablesResolutionsEdit'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -2201,7 +2217,7 @@ app.controller('ControllerAdminPanelTablesCategoryAdd', function ($scope, NgTabl
 });
 
 
-//AdminPanel Tables Admins Edit Page//
+//AdminPanel Tables Category Edit Page//
 //--------------------------------------------------------------------------------------------------------------------//
 app.factory('ServiceAdminPanelTablesCategoryEdit', function ($http) {
     var service = {};
@@ -2276,6 +2292,275 @@ app.controller('ControllerAdminPanelTablesCategoryEdit', function ($scope, $root
             $location.path($rootScope.lastReturnLink)
         }, function () {
             alert("Error while editing category, please try again!");
+        })
+    };
+
+    $scope.cancel = function () {
+        $location.path($rootScope.lastReturnLink)
+    }
+
+});
+
+
+//AdminPanel Tables Resolution Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesResolutions', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResolutions = function () {
+        return $http.get(rest + "/resolution", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteResolution = function (resolution) {
+        return $http.delete(rest + "/resolution",{data: resolution, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesResolutions', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesResolutions, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesResolutions.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesResolutions.getResolutions().then(function (response) {
+            let data = response.data;
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }else{
+        $location.path("/")
+    }
+
+    $scope.editClick = function (resolution) {
+        //Handle edit resolution
+        $rootScope.lastReturnLink = "/adminPanel/tables/resolutions";
+        $location.path("/adminPanel/tables/resolutions/edit/"+resolution.id);
+    };
+
+    $scope.viewClick = function (resolution) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (resolution) {
+        //Handle
+        $scope.selectedResolution = resolution;
+    };
+
+    $scope.doDelete = function (){
+        let resoltuion = {};
+        Object.assign(resoltuion,$scope.selectedResolution);
+        ServiceAdminPanelTablesResolutions.deleteResolution(resoltuion).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting resolution.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/resolutions/add")
+    }
+
+
+});
+
+
+//AdminPanel Tables Resolutions Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesResolutionsAdd', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (resolution) {
+        return $http.post(rest + "/resolution", resolution, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesResolutionsAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesResolutionsAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesResolutionsAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }else{
+        $location.path("/")
+    }
+
+    $scope.add = function () {
+        var resolution = $scope.resolution;
+
+
+        ServiceAdminPanelTablesResolutionsAdd.add(resolution).then(function (response) {
+            $location.path("/adminPanel/tables/resolutions")
+        }, function () {
+            alert("Error while creating resolution, please try again!");
+        });
+
+        $scope.cancel = function () {
+            $location.path("/adminPanel/tables/resolutions")
+        }
+
+    }
+});
+
+
+//AdminPanel Tables Resolutions Edit Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesResolutionsEdit', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (resolution) {
+        return $http.put(rest + "/resolution", resolution, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getResolution = function(id){
+        return $http.get(rest + "/resolution/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesResolutionsEdit', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesResolutionsEdit, $location, $routeParams) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesResolutionsEdit.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }else{
+        $location.path("/")
+    }
+
+    ServiceAdminPanelTablesResolutionsEdit.getResolution($routeParams.id).then(function (response) {
+        $scope.resolution = response.data;
+    });
+
+    $scope.add = function () {
+        var resolution = {};
+        Object.assign(resolution, $scope.resolution);
+
+
+        ServiceAdminPanelTablesResolutionsEdit.add(resolution).then(function (response) {
+            $location.path($rootScope.lastReturnLink)
+        }, function () {
+            alert("Error while editing resolution, please try again!");
         })
     };
 

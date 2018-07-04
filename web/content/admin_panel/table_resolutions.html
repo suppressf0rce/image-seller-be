@@ -1,0 +1,85 @@
+<ng-include src="'content/admin_panel/admin_panel_header.html'"></ng-include>
+<div class="content-wrapper">
+    <div class="container-fluid">
+
+        <div class="card mb-3 margin-top-48">
+            <div class="card-header">
+                <i class="fa fa-table"></i> Resolutions
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" ng-click="addClick()" type="button">Add Resolution</button>
+                <div class="table-responsive">
+                    <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
+                           show-filter="true">
+                        <table ng-table="tableParams" class="table" show-filter="true">
+                            <tr ng-repeat="resolution in $data">
+                                <td title="'ID'" filter="{ id: 'number'}" sortable="'id'">{{resolution.id}}</td>
+                                <td title="'Description'" filter="{ description: 'text'}" sortable="'description'">
+                                    {{resolution.description}}
+                                </td>
+                                <td title="'Width'" filter="{ width: 'number'}" sortable="'width'">
+                                    {{resolution.width}}
+                                </td>
+                                <td title="'Height'" filter="{ height: 'number'}" sortable="'height'">
+                                    {{resolution.height}}
+                                </td>
+                                <td title="'Minimum Price'" filter="{ minPrice: 'text'}" sortable="'minPrice'">
+                                    {{resolution.minPrice}}
+                                </td>
+                                <td title="'Maximum Price'" filter="{ maxPrice: 'text'}" sortable="'maxPrice'">
+                                    {{resolution.maxPrice}}
+                                </td>
+                                <td ng-if="view || edit || delete" >
+                                    <div>
+                                        <button ng-if="view"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="viewClick(resolution)">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+
+                                        <button ng-if="edit"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="editClick(resolution)">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+
+                                        <button ng-if="delete"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="deleteClick(resolution)"
+                                                data-toggle="modal" data-target="#removeModal">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer small text-muted">{{lastSync}}</div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Operator?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Are you sure that you want to delete Operator with ID:{{selectedResolution.id}}</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doDelete()">Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'content/admin_panel/admin_panel_footer.html'"></ng-include>
