@@ -1,0 +1,29 @@
+<div ng-include="'content/admin_panel/admin_panel_header.html'"></div>
+<div class="content-wrapper">
+    <div class="container-fluid">
+
+        <!--Content Goes here-->
+        <div class="card mb-3 margin-top-48">
+            <div class="card-header">
+                <i class="fas fa-edit"></i> Edit Category
+            </div>
+            <div class="card-body">
+                <form name="editForm">
+                    <div class="form-group">
+                        <label for="categoryID">ID:</label>
+                        <input type="text" ng-model="category.id" ng-disabled="true" ng-required="false" class="form-control" id="categoryID"
+                               placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryName">Name:</label>
+                        <input type="text" ng-model="category.name" ng-required="true" ng-disabled="false"
+                               class="form-control" id="categoryName" placeholder="Name">
+                    </div>
+                    <button ng-click="editForm.$valid && add()" type="submit" class="btn btn-primary">Edit</button>
+                    <button ng-click="cancel()" class="btn btn-dark">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-include="'content/admin_panel/admin_panel_footer.html'"></div>

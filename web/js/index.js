@@ -116,6 +116,22 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesCountryEdit'
         })
 
+        //
+        .when("/adminPanel/tables/categories", {
+            templateUrl: "content/admin_panel/table_categories.html",
+            controller: 'ControllerAdminPanelTablesCategories'
+        })
+
+        .when("/adminPanel/tables/categories/add", {
+            templateUrl: "content/admin_panel/category_add.html",
+            controller: 'ControllerAdminPanelTablesCategoryAdd'
+        })
+
+        .when("/adminPanel/tables/categories/edit/:id", {
+            templateUrl: "content/admin_panel/category_edit.html",
+            controller: 'ControllerAdminPanelTablesCategoryEdit'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -1789,6 +1805,275 @@ app.controller('ControllerAdminPanelTablesCountryEdit', function ($scope, $rootS
             $location.path($rootScope.lastReturnLink)
         }, function () {
             alert("Error while editing country, please try again!");
+        })
+    };
+
+    $scope.cancel = function () {
+        $location.path($rootScope.lastReturnLink)
+    }
+
+});
+
+
+//AdminPanel Tables Categories Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesCategories', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getCategories = function () {
+        return $http.get(rest + "/category", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteCategory = function (category) {
+        return $http.delete(rest + "/category",{data: category, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesCategories', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesCategories, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesCategories.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesCategories.getCategories().then(function (response) {
+            let data = response.data;
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }else{
+        $location.path("/")
+    }
+
+    $scope.editClick = function (category) {
+        //Handle edit category
+        $rootScope.lastReturnLink = "/adminPanel/tables/categories";
+        $location.path("/adminPanel/tables/categories/edit/"+category.id);
+    };
+
+    $scope.viewClick = function (category) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (category) {
+        //Handle
+        $scope.selectedCategory = category;
+    };
+
+    $scope.doDelete = function (){
+        let category = {};
+        Object.assign(category,$scope.selectedCategory);
+        ServiceAdminPanelTablesCategories.deleteCategory(category).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting category.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/categories/add")
+    }
+
+
+});
+
+
+//AdminPanel Tables Categories Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesCategoryAdd', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (category) {
+        return $http.post(rest + "/category", category, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesCategoryAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesCategoryAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesCategoryAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }else{
+        $location.path("/")
+    }
+
+    $scope.add = function () {
+        var category = $scope.category;
+
+
+        ServiceAdminPanelTablesCategoryAdd.add(category).then(function (response) {
+            $location.path("/adminPanel/tables/categories")
+        }, function () {
+            alert("Error while creating category, please try again!");
+        });
+
+        $scope.cancel = function () {
+            $location.path("/adminPanel/tables/categories")
+        }
+
+    }
+});
+
+
+//AdminPanel Tables Admins Edit Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesCategoryEdit', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (category) {
+        return $http.put(rest + "/category", category, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getCategory = function(id){
+        return $http.get(rest + "/category/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesCategoryEdit', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesCategoryEdit, $location, $routeParams) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesCategoryEdit.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }else{
+        $location.path("/")
+    }
+
+    ServiceAdminPanelTablesCategoryEdit.getCategory($routeParams.id).then(function (response) {
+        $scope.category = response.data;
+    });
+
+    $scope.add = function () {
+        var category = {};
+        Object.assign(category, $scope.category);
+
+
+        ServiceAdminPanelTablesCategoryEdit.add(category).then(function (response) {
+            $location.path($rootScope.lastReturnLink)
+        }, function () {
+            alert("Error while editing category, please try again!");
         })
     };
 
