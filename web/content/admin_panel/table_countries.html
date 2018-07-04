@@ -1,0 +1,92 @@
+<ng-include src="'content/admin_panel/admin_panel_header.html'"></ng-include>
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Navbar</li>
+        </ol>
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fa fa-table"></i> Countries
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" ng-click="addClick()" type="button">Add Country</button>
+                <div class="table-responsive">
+                    <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
+                           show-filter="true">
+                        <table ng-table="tableParams" class="table" show-filter="true">
+                            <tr ng-repeat="country in $data">
+                                <td title="'ID'" filter="{ id: 'number'}" sortable="'id'">{{country.id}}</td>
+                                <td title="'ISO'" filter="{ iso: 'text'}" sortable="'iso'">
+                                    {{country.iso}}
+                                </td>
+                                <td title="'Name'" filter="{ name: 'text'}" sortable="'name'">
+                                    {{country.name}}
+                                </td>
+                                <td title="'Nice Name'" filter="{ niceName: 'text'}" sortable="'niceName'">{{country.niceName}}</td>
+                                <td title="'iso3'" filter="{ iso3: 'text'}" sortable="'iso3'">
+                                    {{country.iso3}}
+                                </td>
+                                <td title="'Number Code'" filter="{ numCode: 'number'}" sortable="'numCode'">{{country.numCode}}
+                                </td>
+                                <td title="'Phone Code'" filter="{ phoneCode: 'number'}"
+                                    sortable="'phoneCode'">{{country.phoneCode}}
+                                </td>
+
+                                <td ng-if="view || edit || delete" >
+                                    <div>
+                                        <button ng-if="view"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="viewClick(country)">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+
+                                        <button ng-if="edit"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="editClick(country)">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+
+                                        <button ng-if="delete"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="deleteClick(country)"
+                                                data-toggle="modal" data-target="#removeModal">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer small text-muted">{{lastSync}}</div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Operator?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Are you sure that you want to delete Operator with ID:{{selectedCountry.id}}</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doDelete()">Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-include src="'content/admin_panel/admin_panel_footer.html'"></ng-include>

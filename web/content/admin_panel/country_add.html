@@ -1,0 +1,61 @@
+<div ng-include="'content/admin_panel/admin_panel_header.html'"></div>
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Navbar</li>
+        </ol>
+
+        <!--Content Goes here-->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-plus"></i> Add Country
+            </div>
+            <div class="card-body">
+                <form name="editForm">
+                    <div class="form-group">
+                        <label for="countryID">ID:</label>
+                        <input type="text" ng-model="country.id" ng-disabled="true" ng-required="false" class="form-control" id="countryID"
+                               placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryISO">ISO:</label>
+                        <input type="text" ng-model="country.iso" ng-required="false" ng-disabled="false" maxlength="2"
+                               class="form-control" id="countryISO" placeholder="ISO">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryName">Name:</label>
+                        <input type="text" ng-model="country.name" ng-required="true" ng-disabled="false"
+                               class="form-control" id="countryName" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryNiceName">Nice Name:</label>
+                        <input type="text" ng-model="country.niceName" ng-required="true" ng-disabled="false"
+                               class="form-control" id="countryNiceName" placeholder="Nice Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryISO3">ISO 3:</label>
+                        <input type="text" ng-model="country.iso3" ng-required="false" ng-disabled="false" maxlength="3"
+                               class="form-control" id="countryISO3" placeholder="ISO 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryNumCode">Number Code:</label>
+                        <input type="text" ng-model="country.numCode" ng-required="false" ng-disabled="false"
+                               class="form-control" id="countryNumCode" placeholder="Number Code">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryPhoneCode">Phone Code:</label>
+                        <input type="text" ng-model="country.phoneCode" ng-required="false" ng-disabled="false"
+                               class="form-control" id="countryPhoneCode" placeholder="Phone Code">
+                    </div>
+                    <button ng-click="editForm.$valid && add()" type="submit" class="btn btn-primary">Add</button>
+                    <button ng-click="cancel()" class="btn btn-dark">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-include="'content/admin_panel/admin_panel_footer.html'"></div>

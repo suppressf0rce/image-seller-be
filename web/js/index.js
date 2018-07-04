@@ -99,6 +99,23 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesAdminsEdit'
         })
 
+
+        //
+        .when("/adminPanel/tables/countries", {
+            templateUrl: "content/admin_panel/table_countries.html",
+            controller: 'ControllerAdminPanelTablesCountries'
+        })
+
+        .when("/adminPanel/tables/countries/add", {
+            templateUrl: "content/admin_panel/country_add.html",
+            controller: 'ControllerAdminPanelTablesCountryAdd'
+        })
+
+        .when("/adminPanel/tables/countries/edit/:id", {
+            templateUrl: "content/admin_panel/country_edit.html",
+            controller: 'ControllerAdminPanelTablesCountryEdit'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -444,6 +461,8 @@ app.controller('ControllerAdminPanel', function ($scope, ServiceAdminPanel, $loc
         }, function () {
             $location.path("/")
         })
+    }else{
+        $location.path("/")
     }
 });
 
@@ -529,6 +548,8 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, $rootScope,
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
+    }else{
+        $location.path("/")
     }
 
     $scope.editClick = function (user) {
@@ -631,6 +652,8 @@ app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableP
         }, function () {
             $location.path("/")
         });
+    }else{
+        $location.path("/")
     }
 
     ServiceAdminPanelTablesAdminsAdd.getAllCountries().then(function (response) {
@@ -743,6 +766,8 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, $rootSc
         }, function () {
             $location.path("/")
         });
+    }else{
+        $location.path("/")
     }
 
     ServiceAdminPanelTablesAdminsEdit.getAllCountries().then(function (response) {
@@ -886,6 +911,8 @@ app.controller('ControllerAdminPanelTablesOperators', function ($scope, $rootSco
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
+    }else{
+        $location.path("/")
     }
 
     $scope.editClick = function (user) {
@@ -988,6 +1015,8 @@ app.controller('ControllerAdminPanelTablesOperatorsAdd', function ($scope, NgTab
         }, function () {
             $location.path("/")
         });
+    }else{
+        $location.path("/")
     }
 
     ServiceAdminPanelTablesOperatorsAdd.getAllCountries().then(function (response) {
@@ -1117,6 +1146,8 @@ app.controller('ControllerAdminPanelTablesSellers', function ($scope, $rootScope
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
+    }else{
+        $location.path("/")
     }
 
     $scope.editClick = function (user) {
@@ -1218,6 +1249,8 @@ app.controller('ControllerAdminPanelTablesSellersAdd', function ($scope, NgTable
         }, function () {
             $location.path("/")
         });
+    }else{
+        $location.path("/")
     }
 
     ServiceAdminPanelTablesSellersAdd.getAllCountries().then(function (response) {
@@ -1346,6 +1379,8 @@ app.controller('ControllerAdminPanelTablesUsers', function ($scope, $rootScope, 
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
+    }else{
+        $location.path("/")
     }
 
     $scope.editClick = function (user) {
@@ -1447,6 +1482,8 @@ app.controller('ControllerAdminPanelTablesUsersAdd', function ($scope, NgTablePa
         }, function () {
             $location.path("/")
         });
+    }else{
+        $location.path("/")
     }
 
     ServiceAdminPanelTablesUsersAdd.getAllCountries().then(function (response) {
@@ -1488,6 +1525,275 @@ app.controller('ControllerAdminPanelTablesUsersAdd', function ($scope, NgTablePa
 
     $scope.cancel = function () {
         $location.path("/adminPanel/tables/users")
+    }
+
+});
+
+
+//AdminPanel Tables Countries Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesCountries', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getCountries = function () {
+        return $http.get(rest + "/country", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteCountry = function (country) {
+        return $http.delete(rest + "/country",{data: country, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesCountries', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesCountries, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesCountries.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceAdminPanelTablesCountries.getCountries().then(function (response) {
+            let data = response.data;
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.edit = true;
+            $scope.delete = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }else{
+        $location.path("/")
+    }
+
+    $scope.editClick = function (country) {
+        //Handle edit country
+        $rootScope.lastReturnLink = "/adminPanel/tables/countries";
+        $location.path("/adminPanel/tables/countries/edit/"+country.id);
+    };
+
+    $scope.viewClick = function (country) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (country) {
+        //Handle
+        $scope.selectedCountry = country;
+    };
+
+    $scope.doDelete = function (){
+        let country = {};
+        Object.assign(country,$scope.selectedCountry);
+        ServiceAdminPanelTablesCountries.deleteCountry(country).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting country.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $location.path("/adminPanel/tables/countries/add")
+    }
+
+
+});
+
+
+//AdminPanel Tables Countries Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesCountryAdd', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (country) {
+        return $http.post(rest + "/country", country, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesCountryAdd', function ($scope, NgTableParams, ServiceAdminPanelTablesCountryAdd, $location) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesCountryAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }else{
+        $location.path("/")
+    }
+
+    $scope.add = function () {
+        var country = $scope.country;
+
+
+        ServiceAdminPanelTablesCountryAdd.add(country).then(function (response) {
+            $location.path("/adminPanel/tables/countries")
+        }, function () {
+            alert("Error while creating country, please try again!");
+        });
+
+        $scope.cancel = function () {
+            $location.path("/adminPanel/tables/countries")
+        }
+
+    }
+});
+
+
+//AdminPanel Tables Admins Edit Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceAdminPanelTablesCountryEdit', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.add = function (country) {
+        return $http.put(rest + "/country", country, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getCountry = function(id){
+        return $http.get(rest + "/country/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerAdminPanelTablesCountryEdit', function ($scope, $rootScope, NgTableParams, ServiceAdminPanelTablesCountryEdit, $location, $routeParams) {
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceAdminPanelTablesCountryEdit.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfAdmin();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+    }else{
+        $location.path("/")
+    }
+
+    ServiceAdminPanelTablesCountryEdit.getCountry($routeParams.id).then(function (response) {
+        $scope.country = response.data;
+    });
+
+    $scope.add = function () {
+        var country = {};
+        Object.assign(country, $scope.country);
+
+
+        ServiceAdminPanelTablesCountryEdit.add(country).then(function (response) {
+            $location.path($rootScope.lastReturnLink)
+        }, function () {
+            alert("Error while editing country, please try again!");
+        })
+    };
+
+    $scope.cancel = function () {
+        $location.path($rootScope.lastReturnLink)
     }
 
 });
