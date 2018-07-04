@@ -154,6 +154,14 @@ app.config(function ($routeProvider) {
             controller: 'ControllerAdminPanelTablesResolutionsEdit'
         })
 
+
+        //Operator Panel//
+        //------------------------------------------------------------------------------------------------------------//
+        .when("/operatorPanel", {
+            templateUrl: "content/operator_panel/operator_panel.html",
+            controller: 'ControllerOperatorPanel'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -237,6 +245,10 @@ app.factory('ServiceHome', function ($http) {
 
     service.getCategories = function () {
         return $http.get(rest + "/category", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -336,6 +348,13 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
         })
     };
 
+    $scope.suspend = function(){
+        $scope.loggedUser.suspended = true;
+        ServiceHome.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token",null);
+            window.location.reload(false);
+        })
+    };
 
     ServiceHome.getCategories().then(function (response) {
         $scope.categories = response.data;
@@ -359,6 +378,10 @@ app.factory('ServicePricing', function ($http) {
 
     service.getResolutions = function () {
         return $http.get(rest + "/resolution", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -453,6 +476,14 @@ app.controller('ControllerPricing', function ($scope, ServicePricing, $location)
     $scope.changePassword = function(){
         ServicePricing.getResetLink().then(function (response) {
             $location.path("/reset/"+response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function(){
+        $scope.loggedUser.suspended = true;
+        ServiceHome.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token",null);
+            window.location.reload(false);
         })
     };
 
@@ -2568,4 +2599,61 @@ app.controller('ControllerAdminPanelTablesResolutionsEdit', function ($scope, $r
         $location.path($rootScope.lastReturnLink)
     }
 
+});
+
+
+//OperatorPanel Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceOperatorPanel', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+app.controller('ControllerOperatorPanel', function ($scope, ServiceOperatorPanel, $location) {
+
+    $scope.loggedIn = false;
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceOperatorPanel.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfOperator();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        })
+    }else{
+        $location.path("/")
+    }
 });

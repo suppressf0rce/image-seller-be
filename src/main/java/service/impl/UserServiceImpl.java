@@ -434,6 +434,13 @@ public class UserServiceImpl implements UserService {
 
             if (!user.isActivated())
                 throw new Exception();
+
+            if(user.isBlocked())
+                throw new Exception();
+
+            if(user.isSuspended())
+                throw new Exception();
+
         } else
             throw new Exception();
     }
