@@ -9,6 +9,12 @@ app.config(function ($routeProvider) {
             controller: 'ControllerHome'
         })
 
+        .when("/pricing", {
+            templateUrl: "content/pricing.html",
+            controller: 'ControllerPricing'
+        })
+
+
         .when("/resetPasswordRequest", {
             templateUrl: "content/reset_password_request.html",
             controller: 'ControllerPasswordResetRequest'
@@ -137,6 +143,14 @@ app.config(function ($routeProvider) {
         });
 });
 
+app.filter('range', function() {
+    return function(input, total) {
+        total = parseInt(total);
+        for (var i=0; i<total; i++)
+            input.push(i);
+        return input;
+    };
+});
 
 app.run(function ($rootScope) {
     $rootScope.$on("$includeContentLoaded", function (event, templateName) {
@@ -205,6 +219,10 @@ app.factory('ServiceHome', function ($http) {
         return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
     };
 
+    service.getCategories = function () {
+        return $http.get(rest + "/category", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
     return service;
 });
 
@@ -220,7 +238,6 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
 
             if($scope.loggedUser.passwordChange){
                 ServiceHome.getResetLink().then(function (response) {
-                    console.log(response);
                     $location.path("/reset/"+response.data.requestID)
                 })
             }
@@ -229,6 +246,7 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
 
     $scope.logout = function () {
         localStorage.setItem("token", null);
+        window.location.reload(false);
     };
 
     $scope.checkIfAdmin = function () {
@@ -246,8 +264,192 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
             return result;
         }
         return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function(){
+        ServiceHome.getResetLink().then(function (response) {
+            $location.path("/reset/"+response.data.requestID)
+        })
+    };
+
+
+    ServiceHome.getCategories().then(function (response) {
+        $scope.categories = response.data;
+    })
+});
+
+
+//Pricing Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServicePricing', function ($http) {
+    var service = {};
+
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResolutions = function () {
+        return $http.get(rest + "/resolution", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+app.controller('ControllerPricing', function ($scope, ServicePricing, $location) {
+    $scope.loggedIn = false;
+
+    if (localStorage.getItem("token") !== null) {
+        ServicePricing.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if($scope.loggedUser.passwordChange){
+                ServicePricing.getResetLink().then(function (response) {
+                    $location.path("/reset/"+response.data.requestID)
+                })
+            }
+        })
     }
 
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function(){
+        ServicePricing.getResetLink().then(function (response) {
+            $location.path("/reset/"+response.data.requestID)
+        })
+    };
+
+    $scope.seeImages = function(resolution){
+      //TODO: Filter Images
+      alert("Implement this filter for resolution: "+resolution.description)
+    };
+
+
+    ServicePricing.getResolutions().then(function (response) {
+        $scope.resolutions = response.data;
+        $scope.num = Math.ceil($scope.resolutions.length/3)
+    })
 });
 
 //Password Reset Request Page//
@@ -382,7 +584,7 @@ app.controller('ControllerRegister', function ($scope, ServiceRegister, $locatio
                 alert("User with that username already exists!");
             })
         } else {
-            ServiceRegister.getCountryById(user.country).then(function (response) {
+            ServiceRegister.getCountryById(user.country.id).then(function (response) {
                 user.country = response.data;
 
                 ServiceRegister.register(user).then(function (response) {

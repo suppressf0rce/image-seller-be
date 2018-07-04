@@ -20,7 +20,7 @@
                     <input type="text" class="form-control" id="username" placeholder="Username" ng-model="user.username" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" id="password" placeholder="Password" ng-model="user.password" ng-required="true">
+                    <input type="password" class="form-control" id="password" placeholder="Password" onkeyup="checkPass(); return false;" ng-model="user.password" ng-required="true">
                 </div>
                 <div class="form-group">
                     <input type="password" class="form-control" id="passwordConfirm" onkeyup="checkPass(); return false;" placeholder="Confirm a Password" ng-required="true">
@@ -29,8 +29,9 @@
                     <input type="email" class="form-control" id="ema1l" placeholder="Email" ng-model="user.email" ng-required="true">
                 </div>
                 <div class="form-group">
-                    <select id="selectCountry" class="form-control" ng-model="user.country">
-                        <option ng-repeat="country in countries" value="{{country.id}}">{{country.niceName}}</option>
+                    <select id="userSelectCountry" class="form-control" ng-model="user.country"
+                            ng-options="country.niceName for country in countries track by country.id">
+                        <option value="">Select Country</option>
                     </select>
                 </div>
                 <div class="form-group">

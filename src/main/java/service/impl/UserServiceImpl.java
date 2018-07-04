@@ -53,8 +53,8 @@ public class UserServiceImpl implements UserService {
             String token = issueToken(userDTO.getUsername());
 
             // Return the token on the response
-            String tokenObj = "{\"token\":\""+token+"\"}";
-            return Response.ok(tokenObj).header("Authorization", AuthenticationFilter.AUTHENTICATION_SCHEME+" "+token).build();
+            String tokenObj = "{\"token\":\"" + token + "\"}";
+            return Response.ok(tokenObj).header("Authorization", AuthenticationFilter.AUTHENTICATION_SCHEME + " " + token).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).build();
@@ -62,24 +62,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response register(UserDTO userDTO){
-        if(userDTO.getUsername() == null)
+    public Response register(UserDTO userDTO) {
+        if (userDTO.getUsername() == null)
             throw new BadRequestException("Username is null");
 
-        if(userDTO.getPassword() == null)
+        if (userDTO.getPassword() == null)
             throw new BadRequestException("Password is null");
 
-        if(userDTO.getEmail() == null)
+        if (userDTO.getEmail() == null)
             throw new BadRequestException("Email is null");
 
         userDTO.setTypes(null);
 
-        add(userDTO,null);
+        add(userDTO, null);
 
         // Issue a token for the user
         //TODO:Send email to the user
         try {
-            mailService.sendMail(Constants.getConfirmationMessage(userDTO.getUsername(),issueActivationLink(userDTO)),Constants.APP_NAME+ " Activation", userDTO.getEmail());
+            mailService.sendMail(Constants.getConfirmationMessage(userDTO.getUsername(), issueActivationLink(userDTO)), Constants.APP_NAME + " Activation", userDTO.getEmail());
         } catch (Exception e) {
             removeById(userDTO.getId(), null);
             throw new BadRequestException(e.getMessage());
@@ -93,32 +93,39 @@ public class UserServiceImpl implements UserService {
         String decrypted = EncryptionUtil.decode(id);
         if (decrypted != null) {
             int userId = Integer.valueOf(decrypted);
-            UserDTO userDTO = getById(userId);
-            if(userDTO == null)
-                throw new BadRequestException("Unrecognized User ID");
-            userDTO.setActivated(true);
-            update(userDTO, null);
             try {
-                return Response.seeOther(new URI(Constants.APP_LOGIN_PATH)).build();
-            } catch (URISyntaxException e) {
-                throw new BadRequestException();
+                User user = userDAO.getById(userId);
+
+                if(user == null)
+                    throw new BadRequestException("Unrecognized User ID");
+
+                user.setActivated(true);
+                userDAO.update(user);
+
+                try {
+                    return Response.seeOther(new URI(Constants.APP_LOGIN_PATH)).build();
+                } catch (URISyntaxException e) {
+                    throw new BadRequestException();
+                }
+            } catch (SQLException e) {
+                throw new BadRequestException("Unrecognized User ID");
             }
-        }else
+        } else
             throw new BadRequestException("Unrecognized Activation Request");
     }
 
     @Override
     public Response sendResetMail(UserDTO user) {
-        if(user.getEmail() == null)
+        if (user.getEmail() == null)
             throw new BadRequestException();
 
         try {
             User userFound = userDAO.findByEmail(user.getEmail());
-            if(userFound == null)
+            if (userFound == null)
                 throw new SQLException();
 
             try {
-                mailService.sendMail(Constants.getResetMessage(userFound.getUsername(), issueResetLink(userFound)), Constants.APP_NAME+" - Password Reset", userFound.getEmail());
+                mailService.sendMail(Constants.getResetMessage(userFound.getUsername(), issueResetLink(userFound)), Constants.APP_NAME + " - Password Reset", userFound.getEmail());
                 return Response.ok().build();
             } catch (Exception e) {
                 throw new BadRequestException("Incorrect Email Address");
@@ -131,7 +138,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response resetPassword(UserDTO user, String requestID) {
-        if(user.getPassword() == null)
+        if (user.getPassword() == null)
             throw new BadRequestException("Password can't be null");
 
         try {
@@ -144,10 +151,10 @@ public class UserServiceImpl implements UserService {
             String token = issueToken(userFound.getUsername());
 
             // Return the token on the response
-            String tokenObj = "{\"token\":\""+token+"\"}";
+            String tokenObj = "{\"token\":\"" + token + "\"}";
 
             return Response.ok(tokenObj).build();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new BadRequestException("Unknown request ID");
         }
     }
@@ -165,10 +172,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO removeAdmin(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(!AuthUtils.checkIfAdmin(convertToEntity(admin, User.class)))
+        if (!AuthUtils.checkIfAdmin(convertToEntity(admin, User.class)))
             throw new BadRequestException("Target is not administrator!");
 
         try {
@@ -183,17 +190,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response addAdmin(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+        if (admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
             throw new BadRequestException();
 
         try {
             User adminUs = convertToEntity(admin, User.class);
             adminUs.setActivated(true);
             int id = userDAO.add(adminUs);
-            userDAO.assignPermission(1,id);
+            userDAO.assignPermission(1, id);
             return Response.ok().build();
         } catch (SQLException e) {
             throw new BadRequestException();
@@ -202,10 +209,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO removeOperator(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(!AuthUtils.checkIfOperator(convertToEntity(admin, User.class)))
+        if (!AuthUtils.checkIfOperator(convertToEntity(admin, User.class)))
             throw new BadRequestException("Target is not operater!");
 
         try {
@@ -220,17 +227,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response addOperator(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+        if (admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
             throw new BadRequestException();
 
         try {
             User adminUs = convertToEntity(admin, User.class);
             adminUs.setActivated(true);
             int id = userDAO.add(adminUs);
-            userDAO.assignPermission(2,id);
+            userDAO.assignPermission(2, id);
             return Response.ok().build();
         } catch (SQLException e) {
             throw new BadRequestException();
@@ -239,10 +246,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO removeSeller(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(!AuthUtils.checkIfSeller(convertToEntity(admin, User.class)))
+        if (!AuthUtils.checkIfSeller(convertToEntity(admin, User.class)))
             throw new BadRequestException("Target is not seller!");
 
         try {
@@ -257,17 +264,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response addSeller(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+        if (admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
             throw new BadRequestException();
 
         try {
             User adminUs = convertToEntity(admin, User.class);
             adminUs.setActivated(true);
             int id = userDAO.add(adminUs);
-            userDAO.assignPermission(3,id);
+            userDAO.assignPermission(3, id);
             return Response.ok().build();
         } catch (SQLException e) {
             throw new BadRequestException();
@@ -276,7 +283,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO removeUser(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
 
@@ -292,10 +299,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response addUser(UserDTO admin, User authUser) {
-        if(!AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
 
-        if(admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
+        if (admin.getUsername() == null || admin.getPassword() == null || admin.getEmail() == null)
             throw new BadRequestException();
 
         try {
@@ -324,9 +331,9 @@ public class UserServiceImpl implements UserService {
     public UserDTO update(UserDTO object, User authuser) {
         try {
             User user = userDAO.getById(object.getId());
-            User updatingUser = convertToEntity(object,User.class);
+            User updatingUser = convertToEntity(object, User.class);
 
-            if(updatingUser.getPassword() == null)
+            if (updatingUser.getPassword() == null)
                 updatingUser.setPassword(user.getPassword());
 
 
@@ -344,7 +351,7 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAll();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users) {
+            for (User user : users) {
                 UserDTO dto = convertToDTO(user, UserDTO.class);
                 dto.setPassword("Secret");
                 dtos.add(dto);
@@ -360,7 +367,7 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAllAdmins();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users){
+            for (User user : users) {
                 UserDTO dto = convertToDTO(user, UserDTO.class);
                 dto.setPassword("Secret");
                 dtos.add(dto);
@@ -376,7 +383,7 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAllOperators();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users){
+            for (User user : users) {
                 UserDTO dto = convertToDTO(user, UserDTO.class);
                 dto.setPassword("Secret");
                 dtos.add(dto);
@@ -392,7 +399,7 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDAO.getAllBuyers();
             List<UserDTO> dtos = new ArrayList<>();
-            for(User user: users){
+            for (User user : users) {
                 UserDTO dto = convertToDTO(user, UserDTO.class);
                 dto.setPassword("Secret");
                 dtos.add(dto);
@@ -420,14 +427,14 @@ public class UserServiceImpl implements UserService {
         // Throw an Exception if the credentials are invalid
 
         User user = userDAO.findByUsername(username);
-        if(user != null){
+        if (user != null) {
 
-            if(!password.equals(user.getPassword()))
+            if (!password.equals(user.getPassword()))
                 throw new Exception();
 
-            if(!user.isActivated())
+            if (!user.isActivated())
                 throw new Exception();
-        }else
+        } else
             throw new Exception();
     }
 
@@ -460,17 +467,17 @@ public class UserServiceImpl implements UserService {
         return builder.compact();
     }
 
-    private String issueActivationLink(UserDTO userDTO){
-        return Constants.REST + "users/activate/" + EncryptionUtil.encode(userDTO.getId()+"");
+    private String issueActivationLink(UserDTO userDTO) {
+        return Constants.REST + "users/activate/" + EncryptionUtil.encode(userDTO.getId() + "");
     }
 
-    private String issueResetLink(User user){
-        return Constants.WEBSITE + "reset/" + EncryptionUtil.encode(user.getId()+"");
+    private String issueResetLink(User user) {
+        return Constants.WEBSITE + "reset/" + EncryptionUtil.encode(user.getId() + "");
     }
 
     @Override
     public String getResetLink(User user) {
-        String link =  EncryptionUtil.encode(user.getId()+"");
-        return "{\"requestID\": \""+link+"\"}";
+        String link = EncryptionUtil.encode(user.getId() + "");
+        return "{\"requestID\": \"" + link + "\"}";
     }
 }

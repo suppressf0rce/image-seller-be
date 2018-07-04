@@ -60,21 +60,6 @@
     position: absolute;
 }
 
-#search-form{
-    margin-top: 15%;
-    padding-top: 16px;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-bottom: 1px;
-    position: relative;
-    background: #fff;
-    max-width: 1100px;
-
-    display:block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
 .btn-custom{
     background-color:white !important;
 }
@@ -287,4 +272,60 @@
 
 td div{
     width: 90px;
+}
+
+/* Search Form */
+#search-form{
+    margin-top: 15%;
+    background: #FFF;
+ }
+.dropdown.dropdown-lg .dropdown-menu {
+    margin-top: -1px;
+    padding: 6px 20px;
+    width: 960px;
+}
+.input-group-btn .btn-group {
+    display: flex !important;
+}
+.btn-group .btn {
+    border-radius: 0;
+    margin-left: -1px;
+}
+.btn-group{
+    height: 100%;
+}
+.dropdown.dropdown-lg button{
+    height: 100%;
+}
+#adv-search{
+    width: 1000px !important;
+}
+.btn-group .btn:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.btn-group .form-horizontal .btn[type="submit"] {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.form-horizontal .form-group {
+    margin-left: 0;
+    margin-right: 0;
+}
+.form-group .form-control:last-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+@media (max-width: 768px){
+    #adv-search {
+        width: 500px !important;
+        margin: 0 auto;
+    }
+    .dropdown.dropdown-lg {
+        position: static !important;
+    }
+    .dropdown.dropdown-lg .dropdown-menu {
+        min-width: 500px !important;
+    }
 }

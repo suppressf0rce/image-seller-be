@@ -1,0 +1,27 @@
+<ng-include src="'content/header.html'"></ng-include>
+
+<div class="container margin-top-48">
+        <div class="card-deck mb-3 text-center " ng-repeat="i in [] | range:num">
+
+            <div class="card mb-4 box-shadow" ng-repeat="j in [] | range:3" ng-if="(j+ i*3) < resolutions.length">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{resolutions[j + i*3].description}}</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">${{resolutions[j + i*3].minPrice}} - ${{resolutions[j + i*3].maxPrice}}
+                    </h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>Width: {{resolutions[j + i*3].width}}px</li>
+                        <li>Height: {{resolutions[j + i*3].height}}px</li>
+                        <li>Minimum price: ${{resolutions[j + i*3].minPrice}}</li>
+                        <li>Maximum price: ${{resolutions[j + i*3].maxPrice}}</li>
+                    </ul>
+
+                    <button type="button" class="btn btn-lg btn-block btn-primary" ng-click="seeImages(resolutions[j + i*3])">See
+                        Images
+                    </button>
+                </div>
+            </div>
+
+        </div>
+</div>

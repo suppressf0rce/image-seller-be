@@ -1,0 +1,71 @@
+<!--Header-->
+<header>
+    <nav class="navbar navbar-expand-md navbar-custom justify-content-between">
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+                data-target="#navbarSupportedContent,#navbarSupportedContent2"
+                aria-controls="navbarSupportedContent navbarSupportedContent2" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#!/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#!/images">Images</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#!/featured">Featured</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#!/popular">Popular</a>
+                </li>
+            </ul>
+        </div>
+
+        <a class="navbar-brand" href="#">
+            <img src="res/img/favicon.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            ImageSeller
+        </a>
+
+        <div class="collapse navbar-collapse navbar-right" id="navbarSupportedContent2" ng-cloak>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#!/pricing">Pricing</a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li class="nav-item" ng-if="!loggedIn">
+                    <a class="nav-link" href="#!/login">Sign In</a>
+                </li>
+                <li class="nav-item" ng-if="!loggedIn">
+                    <a class="nav-link" href="#!/register">Register</a>
+                </li>
+                <li class="nav-item dropdown" ng-if="loggedIn">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user"></i>&nbsp&nbsp{{loggedUser.username}}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#!/adminPanel" ng-if="checkIfAdmin()">Admin Panel <i
+                                class="fab fa-cpanel"></i></a>
+                        <a class="dropdown-item" href="#!/operatorPanel" ng-if="checkIfOperator()">Operator Panel <i
+                                class="fab fa-cpanel"></i></a>
+                        <a class="dropdown-item" href="#!/seller/{{loggedUser.id}}/images" ng-if="checkIfSeller()">My Images <i
+                                class="fas fa-file-image"></i></a>
+                        <a class="dropdown-item" href="#!/exam/{{loggedUser.id}}" ng-if="checkIfUser()">Seller Exam <i
+                                class="fas fa-file-signature"></i></a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#!/user/{{loggedUser.id}}/images">Bought Images <i class="fas fa-images"></i></a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="" ng-click="changePassword()">Change Password <i class="fas fa-key"></i></a>
+                        <a class="dropdown-item" href="" data-toggle="modal" data-target="#suspendModal">Suspend Account <i class="fas fa-ban"></i></a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="" ng-click="logout()">Logout <i class="fas fa-sign-out-alt"></i></a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>

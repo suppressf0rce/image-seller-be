@@ -1,88 +1,68 @@
-<!--Header-->
-<header>
-    <nav class="navbar navbar-expand-md navbar-custom justify-content-between">
-        <button class="navbar-toggler" type="button" data-toggle="collapse"
-                data-target="#navbarSupportedContent,#navbarSupportedContent2"
-                aria-controls="navbarSupportedContent navbarSupportedContent2" aria-expanded="false"
-                aria-label="Toggle navigation">
-            <i class="fas fa-bars"></i>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#!/">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!/images">Images</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!/featured">Featured</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!/popular">Popular</a>
-                </li>
-            </ul>
-        </div>
-
-        <a class="navbar-brand" href="#">
-            <img src="res/img/favicon.png" width="30" height="30" class="d-inline-block align-top" alt="">
-            ImageSeller
-        </a>
-
-        <div class="collapse navbar-collapse navbar-right" id="navbarSupportedContent2" ng-cloak>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#!/pricing">Pricing</a>
-                </li>
-                <li class="divider-vertical"></li>
-                <li class="nav-item" ng-if="!loggedIn">
-                    <a class="nav-link" href="#!/login">Sign In</a>
-                </li>
-                <li class="nav-item" ng-if="!loggedIn">
-                    <a class="nav-link" href="#!/register">Register</a>
-                </li>
-                <li class="nav-item dropdown" ng-if="loggedIn">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user"></i>&nbsp&nbsp{{loggedUser.username}}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#!/adminPanel" ng-if="checkIfAdmin()">Admin Panel <i class="fab fa-cpanel"></i></a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" ng-click="logout()">Logout <i class="fas fa-sign-out-alt"></i></a>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </nav>
-</header>
+<ng-include src="'content/header.html'"></ng-include>
 
 <div id="search-div">
     <img src="res/img/search-bg.jpg" width="100%" height="100%" class="centered-and-cropped"
          alt="Search Background Image">
 </div>
 
-<div id="search-form">
-    <form>
-        <div class="form-group row">
-            <div class="col-1">
-                <button type="submit" class="btn btn-custom">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-            <div class="col-11 input-group">
-                <input type="text" class="form-control" aria-label="Text input with dropdown button">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Choose Category</button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div role="separator" class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
+<div class="container" id="search-form">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="input-group input-group-lg" id="adv-search">
+                <input type="text" class="form-control" placeholder="Search awesome images made by people for people"/>
+                <div class="input-group-btn">
+                    <div class="btn-group" role="group">
+                        <div class="dropdown dropdown-lg">
+                            <button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown"
+                                    aria-expanded="false"><span class="caret"></span></button>
+                            <div class="dropdown-menu dropdown-menu-right" role="menu">
+                                <form class="form-horizontal" role="form">
+                                    <div class="form-group">
+                                        <label for="filter">Filter by category</label>
+                                        <select id="userSelectCountry" class="form-control" ng-model="category"
+                                                ng-options="category.name for category in categories track by category.id">
+                                            <option value="">All Categories</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contain">Author</label>
+                                        <input class="form-control" type="text"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contain">Contains the words</label>
+                                        <input class="form-control" type="text"/>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"><span
+                                            class="fas fa-search" aria-hidden="true"></span></button>
+                                </form>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
+</div>
+
+
+<!-- Suspend Modal-->
+<div class="modal fade" id="suspendModal" tabindex="-1" role="dialog" aria-labelledby="suspendModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="suspendModalLabel">Suspend this Account?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Revoking this action will deem this account unusable.<br>Note: This action won't delete your account, it could be brought back by the system administrator</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="suspend()">Suspend
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
