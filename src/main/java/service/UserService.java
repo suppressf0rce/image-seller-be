@@ -33,4 +33,6 @@ public interface UserService extends Service<User, UserDTO> {
 
     UserDTO removeUser(UserDTO admin, User authUser);
     Response addUser(UserDTO admin, User authUser);
+
+    Response blockUser(UserDTO user, User authUser);
 }

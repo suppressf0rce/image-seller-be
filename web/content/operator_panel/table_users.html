@@ -1,4 +1,4 @@
-<ng-include src="'content/admin_panel/admin_panel_header.html'"></ng-include>
+<ng-include src="'content/operator_panel/operator_panel_header.html'"></ng-include>
 <div class="content-wrapper">
     <div class="container-fluid">
         <div class="card mb-3 margin-top-48">
@@ -6,7 +6,6 @@
                 <i class="fa fa-table"></i> Users
             </div>
             <div class="card-body">
-                <button class="btn btn-primary" ng-click="addClick()" type="button">Add User</button>
                 <div class="table-responsive">
                     <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
                            show-filter="true">
@@ -43,8 +42,10 @@
                                         <button ng-if="view"
                                                 type="button"
                                                 class="btn btn-xs btn-default"
-                                                ng-click="viewClick(admin)">
-                                            <i class="fa fa-eye"></i>
+                                                ng-click="viewClick(admin)"
+                                                data-toggle="modal" data-target="#removeModal">
+                                            <i class="fas fa-ban" ng-if="admin.blocked === 'No'"></i>
+                                            <i class="fas fa-eraser" ng-if="admin.blocked === 'Yes'"></i>
                                         </button>
 
                                         <button ng-if="edit"
@@ -57,8 +58,7 @@
                                         <button ng-if="delete"
                                                 type="button"
                                                 class="btn btn-xs btn-default"
-                                                ng-click="deleteClick(admin)"
-                                                data-toggle="modal" data-target="#removeModal">
+                                                ng-click="deleteClick(admin)">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -77,18 +77,20 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Delete User?</h5>
+                <h5 class="modal-title" id="exampleModalLabel" ng-if="selectedUser.blocked == 'No'">Block User?</h5>
+                <h5 class="modal-title" id="exampleModalLabel" ng-if="selectedUser.blocked == 'Yes'">Un-Block User?</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            <div class="modal-body">Are you sure that you want to delete User with ID:{{selectedAdmin.id}}</div>
+            <div class="modal-body" ng-if="selectedUser.blocked == 'No'">Are you sure that you want to block User with ID:{{selectedUser.id}}</div>
+            <div class="modal-body" ng-if="selectedUser.blocked == 'Yes'">Are you sure that you want to un-block User with ID:{{selectedUser.id}}</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doDelete()">Delete
-                </button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doBlock()" ng-if="selectedUser.blocked == 'No'">Block</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doBlock()" ng-if="selectedUser.blocked == 'Yes'">Un-Block</button>
             </div>
         </div>
     </div>
 </div>
-<ng-include src="'content/admin_panel/admin_panel_footer.html'"></ng-include>
+<ng-include src="'content/operator_panel/operator_panel_footer.html'"></ng-include>

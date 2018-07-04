@@ -162,6 +162,16 @@ app.config(function ($routeProvider) {
             controller: 'ControllerOperatorPanel'
         })
 
+        .when("/operatorPanel/tables/users", {
+            templateUrl: "content/operator_panel/table_users.html",
+            controller: 'ControllerOperatorPanelTablesUsers'
+        })
+
+        .when("/operatorPanel/tables/sellers", {
+            templateUrl: "content/operator_panel/table_sellers.html",
+            controller: 'ControllerOperatorPanelTablesSellers'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -179,7 +189,7 @@ app.filter('range', function() {
 app.run(function ($rootScope) {
     $rootScope.$on("$includeContentLoaded", function (event, templateName) {
         //Other JQuery Functionality
-        if (templateName === "content/admin_panel/admin_panel_footer.html") {
+        if (templateName === "content/admin_panel/admin_panel_footer.html" || templateName === "content/operator_panel/operator_panel_footer.html") {
             (function ($) {
                 "use strict"; // Start of use strict
                 // Configure tooltips for collapsed side navigation
@@ -2656,4 +2666,238 @@ app.controller('ControllerOperatorPanel', function ($scope, ServiceOperatorPanel
     }else{
         $location.path("/")
     }
+});
+
+
+//OperatorPanel Tables Sellers Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceOperatorPanelTablesSellers', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getUsers = function () {
+        return $http.get(rest + "/users/sellers", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.blockUser = function (user) {
+        return $http.put(rest + "/users/block", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerOperatorPanelTablesSellers', function ($scope, $rootScope, NgTableParams, ServiceOperatorPanelTablesSellers, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = true;
+    $scope.delete = false;
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceOperatorPanelTablesSellers.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfOperator();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceOperatorPanelTablesSellers.getUsers().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].niceCountryName = ""; //initialization of new property
+
+                data[i].passwordChange = data[i].passwordChange ? "Yes" : "No";
+                data[i].suspended = data[i].suspended ? "Yes" : "No";
+                data[i].activated = data[i].activated ? "Yes" : "No";
+                data[i].blocked = data[i].blocked ? "Yes" : "No";
+
+                if (data[i].country !== null)
+                    data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
+            }
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.view = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }else{
+        $location.path("/")
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+        $scope.selectedUser = user;
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+    };
+
+    $scope.doBlock = function (){
+        let user = {};
+        user.id = $scope.selectedUser.id;
+        ServiceOperatorPanelTablesSellers.blockUser(user).then(function (response) {
+            window.location.reload(false);
+        }, function () {
+            alert("Error has occurred while trying to block user");
+        })
+    };
+
+    $scope.addClick = function () {
+        //Handles
+    }
+
+
+});
+
+
+
+
+//OperatorPanel Tables Users Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceOperatorPanelTablesUsers', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getUsers = function () {
+        return $http.get(rest + "/users", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.blockUser = function (user) {
+        return $http.put(rest + "/users/block", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerOperatorPanelTablesUsers', function ($scope, $rootScope, NgTableParams, ServiceOperatorPanelTablesUsers, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = true;
+    $scope.delete = false;
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceOperatorPanelTablesUsers.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfOperator();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceOperatorPanelTablesUsers.getUsers().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].niceCountryName = ""; //initialization of new property
+
+                data[i].passwordChange = data[i].passwordChange ? "Yes" : "No";
+                data[i].suspended = data[i].suspended ? "Yes" : "No";
+                data[i].activated = data[i].activated ? "Yes" : "No";
+                data[i].blocked = data[i].blocked ? "Yes" : "No";
+
+                if (data[i].country !== null)
+                    data[i].niceCountryName = data[i].country.niceName;  //set the data from nested obj into new property
+            }
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.view = true;
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    }else{
+        $location.path("/")
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+        $scope.selectedUser = user;
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+    };
+
+    $scope.doBlock = function (){
+        let user = {};
+        user.id  = $scope.selectedUser.id;
+        ServiceOperatorPanelTablesUsers.blockUser(user).then(function (response) {
+            window.location.reload(false);
+        }, function () {
+            alert("Error has occurred while trying to block user");
+        })
+    };
+
+    $scope.addClick = function () {
+        //Handle
+    }
+
+
 });

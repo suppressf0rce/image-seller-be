@@ -244,6 +244,23 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    public Response blockUser(UserDTO user, User authUser){
+        if(!AuthUtils.checkIfOperator(authUser))
+            throw new NotAuthorizedException("");
+
+        try {
+            User foundUser = userDAO.getById(user.getId());
+            if(foundUser == null)
+                throw  new BadRequestException("User with that id not found");
+
+            foundUser.setBlocked(!foundUser.isBlocked());
+            userDAO.update(foundUser);
+            return Response.ok().build();
+        } catch (SQLException e) {
+            throw new BadRequestException("User with that id not recognized");
+        }
+    };
+
     @Override
     public UserDTO removeSeller(UserDTO admin, User authUser) {
         if (!AuthUtils.checkIfAdmin(authUser))

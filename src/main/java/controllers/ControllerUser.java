@@ -176,4 +176,12 @@ public class ControllerUser {
     public UserDTO editUser(UserDTO user){
         return userService.update(user, authUser);
     }
+
+    @PUT
+    @Consumes("application/json")
+    @Secured
+    @Path("/block")
+    public Response blockUser(UserDTO user){
+        return userService.blockUser(user, authUser);
+    }
 }
