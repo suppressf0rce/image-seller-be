@@ -14,13 +14,17 @@ app.config(function ($routeProvider) {
             controller: 'ControllerPricing'
         })
 
+        .when("/exam/:userID", {
+            templateUrl: "content/exam.html",
+            controller: 'ControllerExam'
+        })
 
         .when("/resetPasswordRequest", {
             templateUrl: "content/reset_password_request.html",
             controller: 'ControllerPasswordResetRequest'
         })
 
-        .when("/reset/:requestID",{
+        .when("/reset/:requestID", {
             templateUrl: "content/password_reset.html",
             controller: 'ControllerPasswordReset'
         })
@@ -177,10 +181,10 @@ app.config(function ($routeProvider) {
         });
 });
 
-app.filter('range', function() {
-    return function(input, total) {
+app.filter('range', function () {
+    return function (input, total) {
         total = parseInt(total);
-        for (var i=0; i<total; i++)
+        for (var i = 0; i < total; i++)
             input.push(i);
         return input;
     };
@@ -274,9 +278,9 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
             $scope.loggedUser = response.data;
             $scope.loggedIn = true;
 
-            if($scope.loggedUser.passwordChange){
+            if ($scope.loggedUser.passwordChange) {
                 ServiceHome.getResetLink().then(function (response) {
-                    $location.path("/reset/"+response.data.requestID)
+                    $location.path("/reset/" + response.data.requestID)
                 })
             }
         })
@@ -352,16 +356,16 @@ app.controller('ControllerHome', function ($scope, ServiceHome, $location) {
         return false;
     };
 
-    $scope.changePassword = function(){
+    $scope.changePassword = function () {
         ServiceHome.getResetLink().then(function (response) {
-            $location.path("/reset/"+response.data.requestID)
+            $location.path("/reset/" + response.data.requestID)
         })
     };
 
-    $scope.suspend = function(){
+    $scope.suspend = function () {
         $scope.loggedUser.suspended = true;
         ServiceHome.updateUser($scope.loggedUser).then(function (response) {
-            localStorage.setItem("token",null);
+            localStorage.setItem("token", null);
             window.location.reload(false);
         })
     };
@@ -405,9 +409,9 @@ app.controller('ControllerPricing', function ($scope, ServicePricing, $location)
             $scope.loggedUser = response.data;
             $scope.loggedIn = true;
 
-            if($scope.loggedUser.passwordChange){
+            if ($scope.loggedUser.passwordChange) {
                 ServicePricing.getResetLink().then(function (response) {
-                    $location.path("/reset/"+response.data.requestID)
+                    $location.path("/reset/" + response.data.requestID)
                 })
             }
         })
@@ -483,31 +487,274 @@ app.controller('ControllerPricing', function ($scope, ServicePricing, $location)
         return false;
     };
 
-    $scope.changePassword = function(){
+    $scope.changePassword = function () {
         ServicePricing.getResetLink().then(function (response) {
-            $location.path("/reset/"+response.data.requestID)
+            $location.path("/reset/" + response.data.requestID)
         })
     };
 
-    $scope.suspend = function(){
+    $scope.suspend = function () {
         $scope.loggedUser.suspended = true;
         ServiceHome.updateUser($scope.loggedUser).then(function (response) {
-            localStorage.setItem("token",null);
+            localStorage.setItem("token", null);
             window.location.reload(false);
         })
     };
 
-    $scope.seeImages = function(resolution){
-      //TODO: Filter Images
-      alert("Implement this filter for resolution: "+resolution.description)
+    $scope.seeImages = function (resolution) {
+        //TODO: Filter Images
+        alert("Implement this filter for resolution: " + resolution.description)
     };
 
 
     ServicePricing.getResolutions().then(function (response) {
         $scope.resolutions = response.data;
-        $scope.num = Math.ceil($scope.resolutions.length/3)
+        $scope.num = Math.ceil($scope.resolutions.length / 3)
     })
 });
+
+
+//Exam Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceExam', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getCategories = function () {
+        return $http.get(rest + "/category", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerExam', function ($scope, ServiceExam, $location, $routeParams) {
+
+    $scope.loggedIn = false;
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceExam.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if ($scope.loggedUser.passwordChange) {
+                ServiceExam.getResetLink().then(function (response) {
+                    $location.path("/reset/" + response.data.requestID)
+                })
+            }
+
+            if($scope.loggedUser.id != $routeParams.userID)
+                $location.path("/")
+        }, function () {
+            $location.path("/")
+        })
+    }else{
+        $location.path("/")
+    }
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function () {
+        ServiceExam.getResetLink().then(function (response) {
+            $location.path("/reset/" + response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function () {
+        $scope.loggedUser.suspended = true;
+        ServiceExam.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token", null);
+            window.location.reload(false);
+        })
+    };
+
+    ServiceExam.getCategories().then(function (response) {
+        $scope.categories = response.data;
+    });
+
+    $(document).ready(function () {
+
+        var navListItems = $('div.setup-panel div a'),
+            allWells = $('.setup-content'),
+            allNextBtn = $('.nextBtn');
+
+        allWells.hide();
+
+        navListItems.click(function (e) {
+            e.preventDefault();
+            var $target = $($(this).attr('href')),
+                $item = $(this);
+
+            if (!$item.hasClass('disabled')) {
+                navListItems.removeClass('btn-primary').addClass('btn-default');
+                $item.addClass('btn-primary');
+                allWells.hide();
+                $target.show();
+                $target.find('input:eq(0)').focus();
+            }
+        });
+
+        allNextBtn.click(function () {
+            var curStep = $(this).closest(".setup-content"),
+                curStepBtn = curStep.attr("id"),
+                nextStepWizard = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
+                curInputs = curStep.find("input[type='text'],input[type='url']"),
+                isValid = true;
+
+            $(".form-group").removeClass("has-error");
+            for (var i = 0; i < curInputs.length; i++) {
+                if (!curInputs[i].validity.valid) {
+                    isValid = false;
+                    $(curInputs[i]).closest(".form-group").addClass("has-error");
+                }
+            }
+
+            if (isValid) {
+                nextStepWizard.removeAttr('disabled').trigger('click');
+                $scope.resetValid = true;
+            }else{
+                console.log($scope);
+                $scope.resetValid = false;
+            }
+        });
+
+        $('div.setup-panel div a.btn-primary').trigger('click');
+
+
+        //Image load
+        $(document).on('change', '.btn-file :file', function() {
+            var input = $(this),
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [label]);
+        });
+
+        $('.btn-file :file').on('fileselect', function(event, label) {
+
+            var input = $(this).parents('.input-group').find(':text'),
+                log = label;
+
+            if( input.length ) {
+                input.val(log);
+            } else {
+                if( log ) alert(log);
+            }
+
+        });
+
+        function readURL(input, id) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#img-upload-'+id).attr('src', e.target.result);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        for(let i = 0;  i < 10; i++) {
+            $("#imgInp-"+(i+1)).change(function () {
+                readURL(this, i+1);
+            });
+
+            $("#clear-"+(i+1)).click(function () {
+                $('#img-upload-'+(i+1)).attr('src', '');
+                $('#urlname-'+(i+1)).val('');
+            });
+        }
+
+    });
+
+    $scope.sendTest = function () {
+        if($scope.examForm.$valid) {
+            alert("Success");
+            console.log($scope.images);
+        }
+        else
+            alert("Uh-Oh, There are some empty fields \nPlease check previous steps you might have missed some")
+    };
+});
+
 
 //Password Reset Request Page//
 //--------------------------------------------------------------------------------------------------------------------//
@@ -542,7 +789,7 @@ app.factory('ServicePasswordReset', function ($http) {
     var service = {};
 
     service.sendReset = function (user, requestID) {
-        return $http.post(rest + "/users/reset/"+requestID, user)
+        return $http.post(rest + "/users/reset/" + requestID, user)
     };
 
     return service;
@@ -736,7 +983,7 @@ app.controller('ControllerAdminPanel', function ($scope, ServiceAdminPanel, $loc
         }, function () {
             $location.path("/")
         })
-    }else{
+    } else {
         $location.path("/")
     }
 });
@@ -755,7 +1002,10 @@ app.factory('ServiceAdminPanelTablesAdmins', function ($http) {
     };
 
     service.deleteAdmin = function (admin) {
-        return $http.delete(rest + "/users/admins",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/users/admins", {
+            data: admin,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -823,14 +1073,14 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, $rootScope,
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (user) {
         //Handle edit user
         $rootScope.lastReturnLink = "/adminPanel/tables/admins";
-        $location.path("/adminPanel/tables/admins/edit/"+user.id);
+        $location.path("/adminPanel/tables/admins/edit/" + user.id);
     };
 
     $scope.viewClick = function (user) {
@@ -842,9 +1092,9 @@ app.controller('ControllerAdminPanelTablesAdmins', function ($scope, $rootScope,
         $scope.selectedAdmin = user;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let user = {};
-        Object.assign(user,$scope.selectedAdmin);
+        Object.assign(user, $scope.selectedAdmin);
         user.passwordChange = user.passwordChange === "Yes";
         user.suspended = user.suspended === "Yes";
         user.activated = user.activated === "Yes";
@@ -927,7 +1177,7 @@ app.controller('ControllerAdminPanelTablesAdminsAdd', function ($scope, NgTableP
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -996,8 +1246,8 @@ app.factory('ServiceAdminPanelTablesAdminsEdit', function ($http) {
         return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
-    service.getAdmin = function(id){
-        return $http.get(rest + "/users/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    service.getAdmin = function (id) {
+        return $http.get(rest + "/users/" + id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -1041,7 +1291,7 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, $rootSc
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -1052,10 +1302,10 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, $rootSc
     ServiceAdminPanelTablesAdminsEdit.getAdmin($routeParams.id).then(function (response) {
         $scope.user = response.data;
         $scope.confirmPassword = $scope.user.password;
-        $scope.user.passwordChange = $scope.user.passwordChange?'Yes':'No';
-        $scope.user.blocked = $scope.user.blocked?'Yes':'No';
-        $scope.user.suspended = $scope.user.suspended?'Yes':'No';
-        $scope.user.activated = $scope.user.activated?'Yes':'No';
+        $scope.user.passwordChange = $scope.user.passwordChange ? 'Yes' : 'No';
+        $scope.user.blocked = $scope.user.blocked ? 'Yes' : 'No';
+        $scope.user.suspended = $scope.user.suspended ? 'Yes' : 'No';
+        $scope.user.activated = $scope.user.activated ? 'Yes' : 'No';
     });
 
     $scope.add = function () {
@@ -1071,7 +1321,7 @@ app.controller('ControllerAdminPanelTablesAdminsEdit', function ($scope, $rootSc
         user.blocked = user.blocked === 'Yes';
         user.suspended = user.suspended === 'Yes';
         user.activated = user.activated === 'Yes';
-        if(user.password === "Secret")
+        if (user.password === "Secret")
             delete user.password;
 
         if (user.country == null) {
@@ -1118,7 +1368,10 @@ app.factory('ServiceAdminPanelTablesOperators', function ($http) {
     };
 
     service.deleteAdmin = function (admin) {
-        return $http.delete(rest + "/users/operators",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/users/operators", {
+            data: admin,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -1186,14 +1439,14 @@ app.controller('ControllerAdminPanelTablesOperators', function ($scope, $rootSco
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (user) {
         //Handle edit user
         $rootScope.lastReturnLink = "/adminPanel/tables/operators";
-        $location.path("/adminPanel/tables/operators/edit/"+user.id);
+        $location.path("/adminPanel/tables/operators/edit/" + user.id);
     };
 
     $scope.viewClick = function (user) {
@@ -1205,9 +1458,9 @@ app.controller('ControllerAdminPanelTablesOperators', function ($scope, $rootSco
         $scope.selectedAdmin = user;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let user = {};
-        Object.assign(user,$scope.selectedAdmin);
+        Object.assign(user, $scope.selectedAdmin);
         user.passwordChange = user.passwordChange === "Yes";
         user.suspended = user.suspended === "Yes";
         user.activated = user.activated === "Yes";
@@ -1290,7 +1543,7 @@ app.controller('ControllerAdminPanelTablesOperatorsAdd', function ($scope, NgTab
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -1338,7 +1591,6 @@ app.controller('ControllerAdminPanelTablesOperatorsAdd', function ($scope, NgTab
 });
 
 
-
 //AdminPanel Tables Sellers Page//
 //--------------------------------------------------------------------------------------------------------------------//
 app.factory('ServiceAdminPanelTablesSellers', function ($http) {
@@ -1353,7 +1605,10 @@ app.factory('ServiceAdminPanelTablesSellers', function ($http) {
     };
 
     service.deleteAdmin = function (admin) {
-        return $http.delete(rest + "/users/sellers",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/users/sellers", {
+            data: admin,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -1421,14 +1676,14 @@ app.controller('ControllerAdminPanelTablesSellers', function ($scope, $rootScope
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (user) {
         //Handle edit user
         $rootScope.lastReturnLink = "/adminPanel/tables/sellers";
-        $location.path("/adminPanel/tables/sellers/edit/"+user.id);
+        $location.path("/adminPanel/tables/sellers/edit/" + user.id);
     };
 
     $scope.viewClick = function (user) {
@@ -1440,9 +1695,9 @@ app.controller('ControllerAdminPanelTablesSellers', function ($scope, $rootScope
         $scope.selectedAdmin = user;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let user = {};
-        Object.assign(user,$scope.selectedAdmin);
+        Object.assign(user, $scope.selectedAdmin);
         user.passwordChange = user.passwordChange === "Yes";
         user.suspended = user.suspended === "Yes";
         user.activated = user.activated === "Yes";
@@ -1524,7 +1779,7 @@ app.controller('ControllerAdminPanelTablesSellersAdd', function ($scope, NgTable
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -1586,7 +1841,10 @@ app.factory('ServiceAdminPanelTablesUsers', function ($http) {
     };
 
     service.deleteAdmin = function (admin) {
-        return $http.delete(rest + "/users/",{data: admin, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/users/", {
+            data: admin,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -1654,14 +1912,14 @@ app.controller('ControllerAdminPanelTablesUsers', function ($scope, $rootScope, 
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (user) {
         //Handle edit user
         $rootScope.lastReturnLink = "/adminPanel/tables/users";
-        $location.path("/adminPanel/tables/users/edit/"+user.id);
+        $location.path("/adminPanel/tables/users/edit/" + user.id);
     };
 
     $scope.viewClick = function (user) {
@@ -1673,9 +1931,9 @@ app.controller('ControllerAdminPanelTablesUsers', function ($scope, $rootScope, 
         $scope.selectedAdmin = user;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let user = {};
-        Object.assign(user,$scope.selectedAdmin);
+        Object.assign(user, $scope.selectedAdmin);
         user.passwordChange = user.passwordChange === "Yes";
         user.suspended = user.suspended === "Yes";
         user.activated = user.activated === "Yes";
@@ -1757,7 +2015,7 @@ app.controller('ControllerAdminPanelTablesUsersAdd', function ($scope, NgTablePa
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -1819,7 +2077,10 @@ app.factory('ServiceAdminPanelTablesCountries', function ($http) {
     };
 
     service.deleteCountry = function (country) {
-        return $http.delete(rest + "/country",{data: country, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/country", {
+            data: country,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -1876,14 +2137,14 @@ app.controller('ControllerAdminPanelTablesCountries', function ($scope, $rootSco
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (country) {
         //Handle edit country
         $rootScope.lastReturnLink = "/adminPanel/tables/countries";
-        $location.path("/adminPanel/tables/countries/edit/"+country.id);
+        $location.path("/adminPanel/tables/countries/edit/" + country.id);
     };
 
     $scope.viewClick = function (country) {
@@ -1895,9 +2156,9 @@ app.controller('ControllerAdminPanelTablesCountries', function ($scope, $rootSco
         $scope.selectedCountry = country;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let country = {};
-        Object.assign(country,$scope.selectedCountry);
+        Object.assign(country, $scope.selectedCountry);
         ServiceAdminPanelTablesCountries.deleteCountry(country).then(function () {
             window.location.reload(false);
         }, function () {
@@ -1967,7 +2228,7 @@ app.controller('ControllerAdminPanelTablesCountryAdd', function ($scope, NgTable
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2002,8 +2263,8 @@ app.factory('ServiceAdminPanelTablesCountryEdit', function ($http) {
         return $http.put(rest + "/country", country, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
-    service.getCountry = function(id){
-        return $http.get(rest + "/country/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    service.getCountry = function (id) {
+        return $http.get(rest + "/country/" + id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -2047,7 +2308,7 @@ app.controller('ControllerAdminPanelTablesCountryEdit', function ($scope, $rootS
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2088,7 +2349,10 @@ app.factory('ServiceAdminPanelTablesCategories', function ($http) {
     };
 
     service.deleteCategory = function (category) {
-        return $http.delete(rest + "/category",{data: category, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/category", {
+            data: category,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -2145,14 +2409,14 @@ app.controller('ControllerAdminPanelTablesCategories', function ($scope, $rootSc
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (category) {
         //Handle edit category
         $rootScope.lastReturnLink = "/adminPanel/tables/categories";
-        $location.path("/adminPanel/tables/categories/edit/"+category.id);
+        $location.path("/adminPanel/tables/categories/edit/" + category.id);
     };
 
     $scope.viewClick = function (category) {
@@ -2164,9 +2428,9 @@ app.controller('ControllerAdminPanelTablesCategories', function ($scope, $rootSc
         $scope.selectedCategory = category;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let category = {};
-        Object.assign(category,$scope.selectedCategory);
+        Object.assign(category, $scope.selectedCategory);
         ServiceAdminPanelTablesCategories.deleteCategory(category).then(function () {
             window.location.reload(false);
         }, function () {
@@ -2236,7 +2500,7 @@ app.controller('ControllerAdminPanelTablesCategoryAdd', function ($scope, NgTabl
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2271,8 +2535,8 @@ app.factory('ServiceAdminPanelTablesCategoryEdit', function ($http) {
         return $http.put(rest + "/category", category, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
-    service.getCategory = function(id){
-        return $http.get(rest + "/category/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    service.getCategory = function (id) {
+        return $http.get(rest + "/category/" + id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -2316,7 +2580,7 @@ app.controller('ControllerAdminPanelTablesCategoryEdit', function ($scope, $root
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2357,7 +2621,10 @@ app.factory('ServiceAdminPanelTablesResolutions', function ($http) {
     };
 
     service.deleteResolution = function (resolution) {
-        return $http.delete(rest + "/resolution",{data: resolution, headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"),'Content-Type':'application/json'}});
+        return $http.delete(rest + "/resolution", {
+            data: resolution,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
     };
 
     return service;
@@ -2414,14 +2681,14 @@ app.controller('ControllerAdminPanelTablesResolutions', function ($scope, $rootS
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
     $scope.editClick = function (resolution) {
         //Handle edit resolution
         $rootScope.lastReturnLink = "/adminPanel/tables/resolutions";
-        $location.path("/adminPanel/tables/resolutions/edit/"+resolution.id);
+        $location.path("/adminPanel/tables/resolutions/edit/" + resolution.id);
     };
 
     $scope.viewClick = function (resolution) {
@@ -2433,9 +2700,9 @@ app.controller('ControllerAdminPanelTablesResolutions', function ($scope, $rootS
         $scope.selectedResolution = resolution;
     };
 
-    $scope.doDelete = function (){
+    $scope.doDelete = function () {
         let resoltuion = {};
-        Object.assign(resoltuion,$scope.selectedResolution);
+        Object.assign(resoltuion, $scope.selectedResolution);
         ServiceAdminPanelTablesResolutions.deleteResolution(resoltuion).then(function () {
             window.location.reload(false);
         }, function () {
@@ -2505,7 +2772,7 @@ app.controller('ControllerAdminPanelTablesResolutionsAdd', function ($scope, NgT
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2540,8 +2807,8 @@ app.factory('ServiceAdminPanelTablesResolutionsEdit', function ($http) {
         return $http.put(rest + "/resolution", resolution, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
-    service.getResolution = function(id){
-        return $http.get(rest + "/resolution/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    service.getResolution = function (id) {
+        return $http.get(rest + "/resolution/" + id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
     return service;
@@ -2585,7 +2852,7 @@ app.controller('ControllerAdminPanelTablesResolutionsEdit', function ($scope, $r
         }, function () {
             $location.path("/")
         });
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2663,7 +2930,7 @@ app.controller('ControllerOperatorPanel', function ($scope, ServiceOperatorPanel
         }, function () {
             $location.path("/")
         })
-    }else{
+    } else {
         $location.path("/")
     }
 });
@@ -2750,7 +3017,7 @@ app.controller('ControllerOperatorPanelTablesSellers', function ($scope, $rootSc
             $scope.view = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2767,7 +3034,7 @@ app.controller('ControllerOperatorPanelTablesSellers', function ($scope, $rootSc
         //Handle
     };
 
-    $scope.doBlock = function (){
+    $scope.doBlock = function () {
         let user = {};
         user.id = $scope.selectedUser.id;
         ServiceOperatorPanelTablesSellers.blockUser(user).then(function (response) {
@@ -2783,8 +3050,6 @@ app.controller('ControllerOperatorPanelTablesSellers', function ($scope, $rootSc
 
 
 });
-
-
 
 
 //OperatorPanel Tables Users Page//
@@ -2868,7 +3133,7 @@ app.controller('ControllerOperatorPanelTablesUsers', function ($scope, $rootScop
             $scope.view = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
         })
-    }else{
+    } else {
         $location.path("/")
     }
 
@@ -2885,9 +3150,9 @@ app.controller('ControllerOperatorPanelTablesUsers', function ($scope, $rootScop
         //Handle
     };
 
-    $scope.doBlock = function (){
+    $scope.doBlock = function () {
         let user = {};
-        user.id  = $scope.selectedUser.id;
+        user.id = $scope.selectedUser.id;
         ServiceOperatorPanelTablesUsers.blockUser(user).then(function (response) {
             window.location.reload(false);
         }, function () {

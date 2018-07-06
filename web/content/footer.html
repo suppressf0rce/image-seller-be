@@ -1,0 +1,20 @@
+<!-- Suspend Modal-->
+<div class="modal fade" id="suspendModal" tabindex="-1" role="dialog" aria-labelledby="suspendModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="suspendModalLabel">Suspend this Account?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Revoking this action will deem this account unusable.<br>Note: This action won't delete your account, it could be brought back by the system administrator</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="suspend()">Suspend
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
