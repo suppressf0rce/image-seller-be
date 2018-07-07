@@ -1,0 +1,45 @@
+<ng-include src="'content/operator_panel/operator_panel_header.html'"></ng-include>
+<div class="content-wrapper">
+    <div class="container-fluid">
+
+
+        <div class="card mb-3 margin-top-48">
+            <div class="card-header">
+                <i class="fas fa-user"></i> Exam Taker
+            </div>
+            <div class="card-body">
+
+                Username: {{user.username}}<br>
+                E-Mail: {{user.email}}<br>
+                Password: {{user.country.niceName}}
+
+            </div>
+        </div>
+
+        <form name="review">
+            <div class="card mb-3 margin-top-24" ng-repeat="image in images">
+                <div class="card-header">
+                    <i class="fas fa-image"></i> Image: {{image.name}}
+                </div>
+                <div class="card-body">
+
+                    Description: {{image.description}}<br>
+                    Category: {{image.category.name}}<br>
+                    Publish Date: {{image.date}}<br>
+                    Image: <br><img src="{{image.image}}" width="100%"><br><br>
+                    Mark:   <select ng-model="image.rating" ng-required="true" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+
+                </div>
+            </div>
+
+            <button class="btn btn-primary" type="submit" ng-click="sendReview()"><i ng-if="!loading" class="fas fa-eye"></i> <i ng-if="loading" class="fas fa-spinner fa-spin"></i> Review</button>
+        </form>
+    </div>
+</div>
+<ng-include src="'content/operator_panel/operator_panel_footer.html'"></ng-include>

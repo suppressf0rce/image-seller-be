@@ -1,7 +1,7 @@
 package controllers;
 
 import dto.ImageDTO;
-import dto.TestResponseDTO;
+import dto.TestDTO;
 import model.User;
 import security.AuthenticatedUser;
 import security.Secured;
@@ -30,7 +30,7 @@ public class ControllerExam {
     @GET
     @Path("/reviewed")
     @Secured
-    public List<TestResponseDTO> getReviewedExams(){
+    public List<TestDTO> getReviewedExams(){
         return responseService.getReviewedTests(authUser);
     }
 
@@ -38,14 +38,14 @@ public class ControllerExam {
     @GET
     @Path("/unreviewed")
     @Secured
-    public List<TestResponseDTO> getUnreviewedExams(){
+    public List<TestDTO> getUnreviewedExams(){
         return responseService.getUnreviewedTests(authUser);
     }
 
     @PUT
     @Secured
     @Consumes("application/json")
-    public TestResponseDTO updateTest(TestResponseDTO test){
+    public TestDTO updateTest(TestDTO test){
         return responseService.updateTest(test, authUser);
     }
 
@@ -59,7 +59,7 @@ public class ControllerExam {
     @GET
     @Path("/{id}")
     @Secured
-    public TestResponseDTO getByID(@PathParam("id") int id){
+    public TestDTO getByID(@PathParam("id") int id){
         return responseService.getById(id);
     }
 

@@ -22,6 +22,7 @@ public class ImageDAOImpl implements ImageDAO {
     private static final String UPDATE_SQL      = "UPDATE image SET category_id = ?, test_id = ?, user_id = ?, name = ?, keywords = ?, publish_date = ?, place = ?, description = ?, status = ? WHERE id = ?";
     private static final String REMOVE_SQL      = "DELETE FROM image WHERE id = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM image";
+    private static final String GET_ALL_TEST_SQL= "SELECT * FROM image WHERE test_id = ?";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM image WHERE id = ?";
 
 
@@ -54,7 +55,7 @@ public class ImageDAOImpl implements ImageDAO {
         ps.setInt(3, object.getOwner().getId());
         ps.setString(4, object.getName());
         ps.setString(5, object.getKeywords());
-        ps.setDate(6, new Date(object.getPublishDate().getTime()));
+        ps.setLong(6, object.getPublishDate().getTime());
         ps.setString(7, object.getPlace());
         ps.setString(8, object.getDescription());
         ps.setString(9, object.getStatus());
@@ -100,7 +101,7 @@ public class ImageDAOImpl implements ImageDAO {
         ps.setInt(3, object.getOwner().getId());
         ps.setString(4, object.getName());
         ps.setString(5, object.getKeywords());
-        ps.setDate(6, new Date(object.getPublishDate().getTime()));
+        ps.setLong(6, object.getPublishDate().getTime());
         ps.setString(7, object.getPlace());
         ps.setString(8, object.getDescription());
         ps.setString(9, object.getStatus());
@@ -147,7 +148,7 @@ public class ImageDAOImpl implements ImageDAO {
 
         image.setName(rs.getString("name"));
         image.setKeywords(rs.getString("keywords"));
-        image.setPublishDate(new java.util.Date(rs.getDate("publish_date").getTime()));
+        image.setPublishDate(new java.util.Date(rs.getLong("publish_date")));
 
         image.setNumberOfSales(rs.getInt("number_of_sales"));
         image.setRating(rs.getDouble("rating"));
@@ -165,6 +166,18 @@ public class ImageDAOImpl implements ImageDAO {
         while(rs.next()){
             images.add(getImageFromResultSet(rs));
         }
+        return images;
+    }
+
+    @Override
+    public List<Image> getAllForTest(int id) throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_ALL_TEST_SQL);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        List<Image> images = getImagesFromResultSet(rs);
+        connection.close();
+
         return images;
     }
 }

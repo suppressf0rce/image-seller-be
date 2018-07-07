@@ -4,15 +4,14 @@ import dao.ImageDAO;
 import dao.TestDAO;
 import dao.UserDAO;
 import dto.ImageDTO;
-import dto.TestResponseDTO;
+import dto.TestDTO;
+import dto.UserDTO;
 import model.Category;
 import model.Image;
 import model.Test;
 import model.User;
 import security.AuthUtils;
-import service.CategoryService;
-import service.ImageStorageService;
-import service.TestService;
+import service.*;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -42,16 +41,25 @@ public class TestServiceImpl implements TestService {
     @Inject
     private ImageStorageService imageStorageService;
 
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private ImageService imageService;
+
     @Override
-    public List<TestResponseDTO> getReviewedTests(User authUser) {
-        if (!AuthUtils.checkIfOperator(authUser) || !AuthUtils.checkIfAdmin(authUser))
+    public List<TestDTO> getReviewedTests(User authUser) {
+        if (!AuthUtils.checkIfOperator(authUser))
             throw new NotAuthorizedException("");
 
-        List<TestResponseDTO> dtoList = new ArrayList<>();
+        List<TestDTO> dtoList = new ArrayList<>();
 
         try {
-            for (Test test : testDAO.getReviewed())
-                dtoList.add(convertToDTO(test, TestResponseDTO.class));
+            for (Test test : testDAO.getReviewed()){
+                TestDTO dto = convertToDTO(test, TestDTO.class);
+                dto.setUserDTO(userService.convertToDTO(test.getUser(), UserDTO.class));
+                dtoList.add(dto);
+            }
         } catch (SQLException e) {
             throw new BadRequestException();
         }
@@ -60,15 +68,18 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public List<TestResponseDTO> getUnreviewedTests(User authUser) {
-        if (!AuthUtils.checkIfOperator(authUser) || !AuthUtils.checkIfAdmin(authUser))
+    public List<TestDTO> getUnreviewedTests(User authUser) {
+        if (!AuthUtils.checkIfOperator(authUser))
             throw new NotAuthorizedException("");
 
-        List<TestResponseDTO> dtoList = new ArrayList<>();
+        List<TestDTO> dtoList = new ArrayList<>();
 
         try {
-            for (Test test : testDAO.getUnrivewed())
-                dtoList.add(convertToDTO(test, TestResponseDTO.class));
+            for (Test test : testDAO.getUnrivewed()){
+                TestDTO dto = convertToDTO(test, TestDTO.class);
+                dto.setUserDTO(userService.convertToDTO(test.getUser(), UserDTO.class));
+                dtoList.add(dto);
+            }
         } catch (SQLException e) {
             throw new BadRequestException();
         }
@@ -77,7 +88,7 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public TestResponseDTO updateTest(TestResponseDTO test, User authUser) {
+    public TestDTO updateTest(TestDTO test, User authUser) {
 
         if (!AuthUtils.checkIfOperator(authUser) || !AuthUtils.checkIfAdmin(authUser))
             throw new NotAuthorizedException("");
@@ -148,34 +159,47 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public TestResponseDTO add(TestResponseDTO object, User authUser) {
+    public TestDTO add(TestDTO object, User authUser) {
         //TODO: It's raining outside, leave me be!
         return null;
     }
 
     @Override
-    public TestResponseDTO removeById(int id, User authUser) {
+    public TestDTO removeById(int id, User authUser) {
         //TODO: It's raining outside, leave me be!
         return null;
     }
 
     @Override
-    public TestResponseDTO update(TestResponseDTO object, User authUser) {
+    public TestDTO update(TestDTO object, User authUser) {
         //TODO: It's raining outside, leave me be!
         return null;
     }
 
     @Override
-    public List<TestResponseDTO> getAll() {
+    public List<TestDTO> getAll() {
         //TODO: It's raining outside, leave me be!
         return null;
     }
 
     @Override
-    public TestResponseDTO getById(int id) {
+    public TestDTO getById(int id) {
         try {
-            Test country = testDAO.getById(id);
-            return convertToDTO(country, TestResponseDTO.class);
+            Test test = testDAO.getById(id);
+            TestDTO dto = convertToDTO(test, TestDTO.class);
+            dto.setUserDTO(userService.convertToDTO(test.getUser(), UserDTO.class));
+            List<Image> images = imageDAO.getAllForTest(test.getId());
+            List<ImageDTO> imagesDTO = new ArrayList<>();
+            for(Image image: images){
+                ImageDTO imageDTO = imageService.convertToDTO(image, ImageDTO.class);
+
+                //TODO: migrate this so it will save images as server resource so it won't be needed to encode image every time
+
+                imageDTO.setImage("data:image/png;base64,"+imageStorageService.loadOriginal(image));
+                imagesDTO.add(imageDTO);
+            }
+            dto.setImages(imagesDTO);
+            return dto;
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
         }

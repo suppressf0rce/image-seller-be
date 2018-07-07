@@ -464,6 +464,7 @@ public class ImageUtils {
                 imageType = "png";
             // Get a file channel for the file
             File file = new File(filename + "." + imageType);
+            file.getParentFile().mkdir();
             file.createNewFile();
             FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
 

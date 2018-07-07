@@ -109,7 +109,7 @@ create table image
   user_id              int not null,
   name                 varchar(255) not null,
   keywords             text,
-  publish_date         date,
+  publish_date         bigint,
   number_of_sales      int,
   rating               decimal(2,1),
   place                varchar(100),
@@ -516,5 +516,5 @@ INSERT INTO `user_types`(`user_id`, `permission_id`) VALUES(1, 1);
 INSERT INTO `resolution`(`id`, `description`, `width`, `height`, `max_price`, `min_price`) VALUES
   (1, 'HD - 720p', 1280, 720, 30, 0),
   (2, 'FullHD - 1080p', 1920, 1080, 40, 10),
-  (2, '2K - 1080p', 2048, 1080, 40, 10),
-  (2, '4K - 2160p', 3840, 2160, 80, 20);
+  (3, '2K - 1080p', 2048, 1080, 40, 10),
+  (4, '4K - 2160p', 3840, 2160, 80, 20);

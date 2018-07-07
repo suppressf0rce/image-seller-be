@@ -1,0 +1,57 @@
+<ng-include src="'content/operator_panel/operator_panel_header.html'"></ng-include>
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="card mb-3 margin-top-48">
+            <div class="card-header">
+                <i class="fa fa-table"></i> Reviewed Tests
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
+                           show-filter="true">
+                        <table ng-table="tableParams" class="table" show-filter="true">
+                            <tr ng-repeat="test in $data">
+                                <td title="'ID'" filter="{ id: 'number'}" sortable="'id'">{{test.id}}</td>
+                                <td title="'User'" filter="{ user: 'text'}" sortable="'user'">
+                                    {{test.user}}
+                                </td>
+                                <td title="'Status'" filter="{ status: 'text'}" sortable="'status'" width="150">
+                                    <i ng-if="test.status === 'ACCEPTED'" class="fas fa-circle" style="color: green"></i>
+                                    <i ng-if="test.status === 'DECLINED'" class="fas fa-circle" style="color: red"></i>
+                                    {{test.status}}
+                                </td>
+
+                                <td ng-if="view || edit || delete" >
+                                    <div>
+                                        <button ng-if="view"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="viewClick(admin)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+
+                                        <button ng-if="edit"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="editClick(admin)">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+
+                                        <button ng-if="delete"
+                                                type="button"
+                                                class="btn btn-xs btn-default"
+                                                ng-click="deleteClick(admin)">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer small text-muted">{{lastSync}}</div>
+        </div>
+    </div>
+</div>
+<ng-include src="'content/operator_panel/operator_panel_footer.html'"></ng-include>

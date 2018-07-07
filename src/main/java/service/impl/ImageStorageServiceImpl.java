@@ -14,6 +14,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import java.awt.image.BufferedImage;
+import java.nio.Buffer;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
                 if(bufImage.getWidth() > resolution.getWidth() && bufImage.getHeight() > resolution.getHeight()) {
 
-                    String path = Constants.IMAGE_FOLDER +"images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "-" + resolution.getDescription();
+                    String path = Constants.IMAGE_FOLDER + "images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "-" + resolution.getDescription();
                     BufferedImage scaledImage = ImageUtils.resizeImage(bufImage, resolution.getWidth(), resolution.getHeight());
 
                     ImageUtils.saveImage(scaledImage, path, imageType);
@@ -69,11 +70,18 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
 
             //Save original image
-            String path = Constants.IMAGE_FOLDER +"images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "- Original";
+            String path = Constants.IMAGE_FOLDER + "images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "- Original";
             ImageUtils.saveImage(bufImage, path, imageType);
 
         } catch (SQLException e) {
             throw new BadRequestException();
         }
+    }
+
+    @Override
+    public String loadOriginal(Image imageInfo) {
+        String path = Constants.IMAGE_FOLDER + "images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "- Original.png";
+        BufferedImage image = ImageUtils.imageFromFile(path);
+        return ImageUtils.base64FromImage(image);
     }
 }

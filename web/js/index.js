@@ -176,6 +176,21 @@ app.config(function ($routeProvider) {
             controller: 'ControllerOperatorPanelTablesSellers'
         })
 
+        .when("/operatorPanel/tables/testsReviewed", {
+            templateUrl: "content/operator_panel/table_test_reviewed.html",
+            controller: 'ControllerOperatorPanelTablesTestsReviewed'
+        })
+
+        .when("/operatorPanel/tables/testsUnReviewed", {
+            templateUrl: "content/operator_panel/table_test_unreviewed.html",
+            controller: 'ControllerOperatorPanelTablesTestsUnReviewed'
+        })
+
+        .when("/operatorPanel/tables/testsUnReviewed/:examID", {
+            templateUrl: "content/operator_panel/review_test.html",
+            controller: 'ControllerOperatorPanelTablesTestsReview'
+        })
+
         .otherwise({
             redirectTo: "/"
         });
@@ -3235,5 +3250,289 @@ app.controller('ControllerOperatorPanelTablesUsers', function ($scope, $rootScop
         //Handle
     }
 
+
+});
+
+
+
+//OperatorPanel Tables Test Reviewed Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceOperatorPanelTablesTestsReviewed', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getTests = function () {
+        return $http.get(rest + "/exam/reviewed", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerOperatorPanelTablesTestsReviewed', function ($scope, $rootScope, NgTableParams, ServiceOperatorPanelTablesTestsReviewed, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceOperatorPanelTablesTestsReviewed.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfOperator();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceOperatorPanelTablesTestsReviewed.getTests().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].user = ""; //initialization of new property
+
+                if (data[i].userDTO !== null)
+                    data[i].user = data[i].userDTO.username;  //set the data from nested obj into new property
+
+                console.log(data[i]);
+            }
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    } else {
+        $location.path("/")
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+    };
+
+    $scope.viewClick = function (user) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+    };
+
+    $scope.addClick = function () {
+        //Handle
+    }
+
+
+});
+
+
+//OperatorPanel Tables Test UnReviewed Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceOperatorPanelTablesTestsUnReviewed', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getTests = function () {
+        return $http.get(rest + "/exam/unreviewed", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerOperatorPanelTablesTestsUnReviewed', function ($scope, $rootScope, NgTableParams, ServiceOperatorPanelTablesTestsUnReviewed, $location) {
+
+    $scope.loggedIn = false;
+    $scope.edit = false;
+    $scope.view = false;
+    $scope.delete = false;
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceOperatorPanelTablesTestsUnReviewed.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfOperator();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceOperatorPanelTablesTestsUnReviewed.getTests().then(function (response) {
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                data[i].user = ""; //initialization of new property
+
+                if (data[i].userDTO !== null)
+                    data[i].user = data[i].userDTO.username;  //set the data from nested obj into new property
+            }
+            $scope.view = true;
+            $scope.tableParams = new NgTableParams({}, {dataset: data});
+            $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+        })
+    } else {
+        $location.path("/")
+    }
+
+    $scope.editClick = function (user) {
+        //Handle edit user
+    };
+
+    $scope.viewClick = function (user) {
+        $location.path("/operatorPanel/tables/testsUnReviewed/"+user.id);
+    };
+
+    $scope.deleteClick = function (user) {
+        //Handle
+    };
+
+    $scope.addClick = function () {
+        //Handle
+    }
+
+
+});
+
+
+//OperatorPanel Tables Test Review Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceOperatorPanelTablesTestsReview', function ($http) {
+    var service = {};
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getTest = function (id) {
+        return $http.get(rest + "/exam/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+
+app.controller('ControllerOperatorPanelTablesTestsReview', function ($scope, $rootScope, $routeParams, ServiceOperatorPanelTablesTestsReview, $location) {
+
+    $scope.loggedIn = false;
+    $scope.loading = true;
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        $location.path("/")
+    };
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceOperatorPanelTablesTestsReview.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            $scope.loggedIn = $scope.checkIfOperator();
+
+            if (!$scope.loggedIn) {
+                $location.path("/")
+            }
+        }, function () {
+            $location.path("/")
+        });
+
+        ServiceOperatorPanelTablesTestsReview.getTest($routeParams.examID).then(function (response) {
+            $scope.user = response.data.userDTO;
+            $scope.images = response.data.images;
+
+            let data = response.data.images;
+            for (let i = 0; i < data.length; i++) {
+                data[i].date = new Date(data[i].publishDate).toLocaleDateString();
+                data[i].rating = ""
+            }
+
+            $scope.loading = false;
+        })
+    } else {
+        $location.path("/")
+    }
+
+    $scope.sendReview = function(){
+       if($scope.loading) {
+           alert("Please wait for loading to finish!");
+           return;
+       }
+
+       if($scope.review.$valid){
+
+       }else{
+           alert("Please give marks for all images!");
+       }
+    }
 
 });
