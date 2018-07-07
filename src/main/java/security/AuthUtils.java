@@ -49,4 +49,17 @@ public class AuthUtils {
         return result;
     }
 
+    public static boolean checkIfUser(User user){
+
+        if(user.getTypes() == null)
+            return false;
+
+        boolean result = true;
+        for(Permission permission: user.getTypes()){
+           result = false;
+        }
+
+        return result;
+    }
+
 }

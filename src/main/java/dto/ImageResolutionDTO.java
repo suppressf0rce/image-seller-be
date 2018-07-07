@@ -1,11 +1,13 @@
-package model;
+package dto;
 
-public class ImageResolution extends Entity{
+import model.Resolution;
+
+public class ImageResolutionDTO extends AbstractDTO {
 
     //Content//
     //----------------------------------------------------------------------------------------------------------------//
     private Resolution resolution;
-    private Image image;
+    private ImageDTO imageDTO;
     private String link;
     private double price;
 
@@ -35,11 +37,11 @@ public class ImageResolution extends Entity{
         this.price = price;
     }
 
-    public Image getImage() {
-        return image;
+    public ImageDTO getImageDTO() {
+        return imageDTO;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setImageDTO(ImageDTO imageDTO) {
+        this.imageDTO = imageDTO;
     }
 }

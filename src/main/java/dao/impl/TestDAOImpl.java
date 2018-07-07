@@ -12,7 +12,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("Duplicates")
 @Dependent
 public class TestDAOImpl implements TestDAO {
 
@@ -24,7 +23,10 @@ public class TestDAOImpl implements TestDAO {
     private static final String UPDATE_SQL      = "UPDATE tests SET user_id = ?, status = ? WHERE id = ?";
     private static final String REMOVE_SQL      = "DELETE FROM tests WHERE id = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM tests";
+    private static final String GET_ALL_REVIEWED= "SELECT * FROM tests WHERE status = 'ACCEPTED' or status = 'DECLINED'";
+    private static final String GET_PENDING     = "SELECT * FROM tests WHERE status = 'PENDING'";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM tests WHERE id = ?";
+    private static final String GET_PENDING_SQL = "SELECT * FROM tests WHERE user_id = ? AND status = 'PENDING'";
 
     @Override
     public int add(Test object) throws SQLException {
@@ -106,5 +108,43 @@ public class TestDAOImpl implements TestDAO {
             tests.add(getTestFromResultSet(rs));
         }
         return tests;
+    }
+
+    @Override
+    public List<Test> getReviewed() throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_ALL_REVIEWED);
+        ResultSet rs = ps.executeQuery();
+        List<Test> tests = getTestsFromResultSet(rs);
+        connection.close();
+
+        return tests;
+    }
+
+    @Override
+    public List<Test> getUnrivewed() throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_PENDING);
+        ResultSet rs = ps.executeQuery();
+        List<Test> tests = getTestsFromResultSet(rs);
+        connection.close();
+
+        return tests;
+    }
+
+    @Override
+    public Test getPendingById(int id) throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_PENDING_SQL);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+
+        Test test = null;
+        if(rs.next())
+            test = getTestFromResultSet(rs);
+
+        connection.close();
+
+        return test;
     }
 }

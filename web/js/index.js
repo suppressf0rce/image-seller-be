@@ -576,6 +576,14 @@ app.factory('ServiceExam', function ($http) {
         return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
     };
 
+    service.checkIfCanDoExam = function(){
+        return $http.get(rest + "/exam", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.doExam = function (images) {
+        return $http.post(rest + "/exam", images, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
     return service;
 });
 
@@ -595,8 +603,19 @@ app.controller('ControllerExam', function ($scope, ServiceExam, $location, $rout
                 })
             }
 
+            if(!$scope.checkIfUser())
+                $location.path("/");
+
             if($scope.loggedUser.id != $routeParams.userID)
+                $location.path("/");
+
+            ServiceExam.checkIfCanDoExam().then(function (re) {
+
+            }, function () {
+                alert("You have pending exams for review!");
                 $location.path("/")
+            })
+
         }, function () {
             $location.path("/")
         })
@@ -795,7 +814,12 @@ app.controller('ControllerExam', function ($scope, ServiceExam, $location, $rout
     $scope.sendTest = function () {
         console.log($scope.images);
         if($scope.examForm.$valid) {
-            alert("Success");
+            ServiceExam.doExam($scope.images).then(function (response) {
+                alert("Exam successfully submitted");
+                $location.path("/")
+            }, function () {
+                alert("Something went wrong! Please try again")
+            })
         }
         else
             alert("Uh-Oh, There are some empty fields \nPlease check previous steps you might have missed some")

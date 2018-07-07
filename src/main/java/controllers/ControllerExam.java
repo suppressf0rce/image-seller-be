@@ -1,15 +1,17 @@
 package controllers;
 
+import dto.ImageDTO;
 import dto.TestResponseDTO;
 import model.User;
 import security.AuthenticatedUser;
 import security.Secured;
-import service.TestResponseService;
+import service.TestService;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Stateless
@@ -23,7 +25,7 @@ public class ControllerExam {
     private User authUser;
 
     @Inject
-    private TestResponseService responseService;
+    private TestService responseService;
 
     @GET
     @Path("/reviewed")
@@ -47,5 +49,35 @@ public class ControllerExam {
         return responseService.updateTest(test, authUser);
     }
 
-    //TODO: Write request tests
+    @POST
+    @Secured
+    @Consumes("application/json")
+    public Response addTest(List<ImageDTO> images){
+        return responseService.addTest(images, authUser);
+    }
+
+    @GET
+    @Path("/{id}")
+    @Secured
+    public TestResponseDTO getByID(@PathParam("id") int id){
+        return responseService.getById(id);
+    }
+
+    @GET
+    @Secured
+    public Response checkIfCanDoTest(){
+        if(responseService.checkIfCanDoTest(authUser))
+            return Response.ok().build();
+        else
+            return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    //TODO: Get images for test with id
+    //
+//    @GET
+//    @Secured
+//    @Path("/{id}/images")
+//    public Lis
+
+    //TODO: Implement test api calls for admin panel one day!
 }
