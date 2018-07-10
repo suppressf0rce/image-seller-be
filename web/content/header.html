@@ -57,7 +57,8 @@
                         <a class="dropdown-item" href="#!/exam/{{loggedUser.id}}" ng-if="checkIfUser()">Seller Exam <i
                                 class="fas fa-file-signature"></i></a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#!/user/{{loggedUser.id}}/images">Bought Images <i class="fas fa-images"></i></a>
+                        <a class="dropdown-item" href="#!/images/{{loggedUser.id}}/">Bought Images <i class="fas fa-images"></i></a>
+                        <a class="dropdown-item" href="#!/cards/{{loggedUser.id}}/">My Credit Cards <i class="fas fa-credit-card"></i></a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="" ng-click="changePassword()">Change Password <i class="fas fa-key"></i></a>
                         <a class="dropdown-item" href="" data-toggle="modal" data-target="#suspendModal">Suspend Account <i class="fas fa-ban"></i></a>

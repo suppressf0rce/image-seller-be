@@ -19,6 +19,21 @@ app.config(function ($routeProvider) {
             controller: 'ControllerExam'
         })
 
+        .when("/cards/:userID", {
+            templateUrl: "content/cards.html",
+            controller: 'ControllerCards'
+        })
+
+        .when("/cards/:userID/add", {
+            templateUrl: "content/cards_add.html",
+            controller: 'ControllerCardsAdd'
+        })
+
+        .when("/cards/:userID/:cardID", {
+            templateUrl: "content/cards_edit.html",
+            controller: 'ControllerCardsEdit'
+        })
+
         .when("/resetPasswordRequest", {
             templateUrl: "content/reset_password_request.html",
             controller: 'ControllerPasswordResetRequest'
@@ -569,6 +584,499 @@ app.controller('ControllerPricing', function ($scope, ServicePricing, $location)
     })
 });
 
+
+//Cards Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceCards', function ($http) {
+    var service = {};
+
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getCards = function () {
+        return $http.get(rest + "/cards/", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.deleteCard = function (card) {
+        return $http.delete(rest + "/cards", {
+            data: card,
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem("token"), 'Content-Type': 'application/json'}
+        });
+    };
+
+    return service;
+});
+
+app.controller('ControllerCards', function ($scope, $rootScope, ServiceCards, NgTableParams, $location, $routeParams) {
+    $scope.loggedIn = false;
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceCards.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if ($scope.loggedUser.passwordChange) {
+                ServiceCards.getResetLink().then(function (response) {
+                    $location.path("/reset/" + response.data.requestID)
+                })
+            }
+
+            if($scope.loggedUser.id != $routeParams.userID)
+                $location.path("/")
+
+            ServiceCards.getCards().then(function (response) {
+                let data = response.data;
+
+                $scope.tableParams = new NgTableParams({}, {dataset: data});
+                $scope.edit = true;
+                $scope.delete = true;
+                $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+            })
+        }, function () {
+            $location.path("/")
+        })
+    }else {
+        $location.path("/")
+    }
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function () {
+        ServiceCards.getResetLink().then(function (response) {
+            $location.path("/reset/" + response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function () {
+        $scope.loggedUser.suspended = true;
+        ServiceCards.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token", null);
+            window.location.reload(false);
+        })
+    };
+
+    $scope.seeImages = function (resolution) {
+        //TODO: Filter Images
+        alert("Implement this filter for resolution: " + resolution.description)
+    };
+
+    $scope.editClick = function (card) {
+        //Handle edit country
+        $rootScope.lastReturnLink = "/cards/"+$routeParams.userID+"/";
+        $location.path("/cards/"+$routeParams.userID+"/" + card.id);
+    };
+
+    $scope.viewClick = function (card) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (card) {
+        //Handle
+        $scope.selectedCard = card;
+    };
+
+    $scope.doDelete = function () {
+        let card = {};
+        Object.assign(card, $scope.selectedCard);
+        ServiceCards.deleteCard(card).then(function () {
+            window.location.reload(false);
+        }, function () {
+            alert("There was an error while deleting the card.");
+        })
+    };
+
+    $scope.addClick = function () {
+        $rootScope.lastReturnLink = "/cards/"+$routeParams.userID+"/";
+        $location.path("/cards/"+$routeParams.userID+"/add")
+    }
+
+});
+
+
+
+//Cards Edit Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceCardsEdit', function ($http) {
+    var service = {};
+
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getCard = function (id) {
+        return $http.get(rest + "/cards/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateCard = function (card) {
+        return $http.put(rest + "/cards/", card, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+app.controller('ControllerCardsEdit', function ($scope, $rootScope, ServiceCardsEdit, NgTableParams, $location, $routeParams) {
+    $scope.loggedIn = false;
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceCardsEdit.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if ($scope.loggedUser.passwordChange) {
+                ServiceCardsEdit.getResetLink().then(function (response) {
+                    $location.path("/reset/" + response.data.requestID)
+                })
+            }
+
+            if($scope.loggedUser.id != $routeParams.userID)
+                $location.path("/")
+
+            ServiceCardsEdit.getCard($routeParams.cardID).then(function (response) {
+                $scope.card = response.data;
+            })
+        }, function () {
+            $location.path("/")
+        })
+    }else {
+        $location.path("/")
+    }
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function () {
+        ServiceCardsEdit.getResetLink().then(function (response) {
+            $location.path("/reset/" + response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function () {
+        $scope.loggedUser.suspended = true;
+        ServiceCardsEdit.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token", null);
+            window.location.reload(false);
+        })
+    };
+
+    $scope.cancel = function () {
+        $location.path($rootScope.lastReturnLink)
+    };
+
+    $scope.add = function(){
+        ServiceCardsEdit.updateCard($scope.card).then(function () {
+            $location.path($rootScope.lastReturnLink)
+        }, function () {
+            alert("There was error while trying to edit card, please try again.")
+        })
+    }
+
+});
+
+
+//Cards Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceCardsAdd', function ($http) {
+    var service = {};
+
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getCard = function (id) {
+        return $http.get(rest + "/cards/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.addCard = function (card) {
+        return $http.post(rest + "/cards/", card, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+app.controller('ControllerCardsAdd', function ($scope, $rootScope, ServiceCardsAdd, NgTableParams, $location, $routeParams) {
+    $scope.loggedIn = false;
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceCardsAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if ($scope.loggedUser.passwordChange) {
+                ServiceCardsAdd.getResetLink().then(function (response) {
+                    $location.path("/reset/" + response.data.requestID)
+                })
+            }
+
+            if($scope.loggedUser.id != $routeParams.userID)
+                $location.path("/")
+
+        }, function () {
+            $location.path("/")
+        })
+    }else {
+        $location.path("/")
+    }
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function () {
+        ServiceCardsAdd.getResetLink().then(function (response) {
+            $location.path("/reset/" + response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function () {
+        $scope.loggedUser.suspended = true;
+        ServiceCardsAdd.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token", null);
+            window.location.reload(false);
+        })
+    };
+
+    $scope.cancel = function () {
+        $location.path($rootScope.lastReturnLink)
+    };
+
+    $scope.add = function(){
+        ServiceCardsAdd.addCard($scope.card).then(function () {
+            $location.path($rootScope.lastReturnLink)
+        }, function () {
+            alert("There was error while trying to add card, please try again.")
+        })
+    }
+
+});
 
 //Exam Page//
 //--------------------------------------------------------------------------------------------------------------------//
