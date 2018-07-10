@@ -72,8 +72,14 @@ public class ControllerExam {
             return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    //TODO: Get images for test with id
-    //
+
+    @POST
+    @Path("/review")
+    @Consumes("application/json")
+    @Secured
+    public Response reviewTest(TestDTO testDTO){
+        return responseService.reviewTest(testDTO, authUser);
+    }
 //    @GET
 //    @Secured
 //    @Path("/{id}/images")

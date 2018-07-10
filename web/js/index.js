@@ -3461,6 +3461,10 @@ app.factory('ServiceOperatorPanelTablesTestsReview', function ($http) {
         return $http.get(rest + "/exam/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
     };
 
+    service.reviewTest = function (test) {
+        return $http.post(rest + "/exam/review", test, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
     return service;
 });
 
@@ -3507,6 +3511,7 @@ app.controller('ControllerOperatorPanelTablesTestsReview', function ($scope, $ro
         });
 
         ServiceOperatorPanelTablesTestsReview.getTest($routeParams.examID).then(function (response) {
+            $scope.test = response.data;
             $scope.user = response.data.userDTO;
             $scope.images = response.data.images;
 
@@ -3528,8 +3533,19 @@ app.controller('ControllerOperatorPanelTablesTestsReview', function ($scope, $ro
            return;
        }
 
+        let data = $scope.images;
+        for (let i = 0; i < data.length; i++) {
+            data[i].rating = parseInt(data[i].rating, 10);
+            delete data[i].image;
+            delete data[i].date;
+        }
        if($scope.review.$valid){
-
+           ServiceOperatorPanelTablesTestsReview.reviewTest($scope.test).then(function (resposne) {
+               $location.path("/operatorPanel/tables/testsUnReviewed")
+           }, function () {
+               console.log($scope.test);
+               alert("Uh-oh, something wen't wrong, please try again!")
+           })
        }else{
            alert("Please give marks for all images!");
        }

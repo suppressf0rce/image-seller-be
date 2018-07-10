@@ -90,7 +90,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestDTO updateTest(TestDTO test, User authUser) {
 
-        if (!AuthUtils.checkIfOperator(authUser) || !AuthUtils.checkIfAdmin(authUser))
+        if (!AuthUtils.checkIfOperator(authUser))
             throw new NotAuthorizedException("");
 
         if (test.getUserDTO() == null)
@@ -203,5 +203,38 @@ public class TestServiceImpl implements TestService {
         } catch (SQLException e) {
             throw new BadRequestException(e.getMessage());
         }
+    }
+
+    @Override
+    public Response reviewTest(TestDTO testDTO, User authUser) {
+        if (!AuthUtils.checkIfOperator(authUser))
+            throw new NotAuthorizedException("");
+
+        double sum = 0;
+
+        for(ImageDTO image: testDTO.getImages())
+            sum += image.getRating();
+
+        sum /= testDTO.getImages().size();
+
+        if(sum >= 3.5) {
+            testDTO.setStatus("ACCEPTED");
+
+            try {
+                userDAO.assignPermission(3, testDTO.getUserDTO().getId());
+            } catch (SQLException e) {
+                throw new BadRequestException("Couldn't find user with that id");
+            }
+        }
+        else
+            testDTO.setStatus("DECLINED");
+
+        try {
+            testDAO.update(convertToEntity(testDTO, Test.class));
+        } catch (SQLException e) {
+            throw new BadRequestException("Error converting dto object");
+        }
+
+        return null;
     }
 }

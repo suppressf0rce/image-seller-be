@@ -17,4 +17,6 @@ public interface TestService extends Service<Test, TestDTO>{
     Response addTest(List<ImageDTO> images, User authUser);
 
     boolean checkIfCanDoTest(User authUser);
+
+    Response reviewTest(TestDTO testDTO, User authUser);
 }
