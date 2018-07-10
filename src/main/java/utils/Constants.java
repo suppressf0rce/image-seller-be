@@ -10,6 +10,7 @@ public class Constants {
     public static final String WEBSITE          = "http://localhost:8080/ImageSeller/#!/";
     public static final String APP_LOGIN_PATH   = "http://localhost:8080/ImageSeller/#!/login";
     public static final String IMAGE_FOLDER     = "/home/suppressf0rce/IdeaProjects/imageseller/";
+    public static final String WATERMARK_TEXT   = "\u00a9 ImageSeller.com";
 
     public static String getConfirmationMessage(String username, String link){
         return "<head>\n" +

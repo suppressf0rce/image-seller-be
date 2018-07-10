@@ -9,6 +9,7 @@ public class Resolution extends Entity{
     private int height;
     private double maxPrice;
     private double minPrice;
+    private boolean isDefault;
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
@@ -50,5 +51,14 @@ public class Resolution extends Entity{
 
     public void setMinPrice(double minPrice) {
         this.minPrice = minPrice;
+    }
+
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 }

@@ -154,6 +154,7 @@ create table resolution
   height               int not null,
   max_price            decimal not null,
   min_price            decimal not null,
+  is_default           bool,
   primary key (id)
 );
 
@@ -513,8 +514,9 @@ INSERT INTO `user_types`(`user_id`, `permission_id`) VALUES(1, 1);
 /*==============================================================*/
 /* Data: resolutions                                            */
 /*==============================================================*/
-INSERT INTO `resolution`(`id`, `description`, `width`, `height`, `max_price`, `min_price`) VALUES
-  (1, 'HD - 720p', 1280, 720, 30, 0),
-  (2, 'FullHD - 1080p', 1920, 1080, 40, 10),
-  (3, '2K - 1080p', 2048, 1080, 40, 10),
-  (4, '4K - 2160p', 3840, 2160, 80, 20);
+INSERT INTO `resolution`(`id`, `description`, `width`, `height`, `max_price`, `min_price`, `is_default`) VALUES
+  (1, 'Minimal', 640, 480, 0, 0, 1),
+  (2, 'HD - 720p', 1280, 720, 30, 0, 0),
+  (3, 'FullHD - 1080p', 1920, 1080, 40, 10, 0),
+  (4, '2K - 1080p', 2048, 1080, 40, 10, 0),
+  (5, '4K - 2160p', 3840, 2160, 80, 20, 0);

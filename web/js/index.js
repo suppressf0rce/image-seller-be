@@ -34,6 +34,16 @@ app.config(function ($routeProvider) {
             controller: 'ControllerCardsEdit'
         })
 
+        .when("/images/:userID", {
+            templateUrl: "content/images.html",
+            controller: 'ControllerImages'
+        })
+
+        .when("/images/:userID/add", {
+            templateUrl: "content/image_add.html",
+            controller: 'ControllerImagesAdd'
+        })
+
         .when("/resetPasswordRequest", {
             templateUrl: "content/reset_password_request.html",
             controller: 'ControllerPasswordResetRequest'
@@ -1075,6 +1085,370 @@ app.controller('ControllerCardsAdd', function ($scope, $rootScope, ServiceCardsA
             alert("There was error while trying to add card, please try again.")
         })
     }
+
+});
+
+
+//Images Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceImages', function ($http) {
+    var service = {};
+
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getImages = function (id) {
+        return $http.get(rest + "/images/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    return service;
+});
+
+app.controller('ControllerImages', function ($scope, $rootScope, ServiceImages, NgTableParams, $location, $routeParams) {
+    $scope.loggedIn = false;
+    $scope.view = true;
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceImages.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if($scope.loggedUser.id == $routeParams.userID) {
+                $scope.edit = true;
+                $scope.delete = true;
+                $scope.add = true;
+            }
+
+            if ($scope.loggedUser.passwordChange) {
+                ServiceImages.getResetLink().then(function (response) {
+                    $location.path("/reset/" + response.data.requestID)
+                })
+            };
+
+            ServiceImages.getImages($routeParams.userID).then(function (response) {
+                let data = response.data;
+
+                $scope.tableParams = new NgTableParams({}, {dataset: data});
+
+                $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+                console.log(response.data)
+            })
+        }, function () {
+            $location.path("/")
+        })
+    }else {
+        $location.path("/")
+    }
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function () {
+        ServiceImages.getResetLink().then(function (response) {
+            $location.path("/reset/" + response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function () {
+        $scope.loggedUser.suspended = true;
+        ServiceImages.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token", null);
+            window.location.reload(false);
+        })
+    };
+
+    $scope.seeImages = function (resolution) {
+        //TODO: Filter Images
+        alert("Implement this filter for resolution: " + resolution.description)
+    };
+
+    $scope.editClick = function (images) {
+        //Handle edit country
+    };
+
+    $scope.viewClick = function (images) {
+        //Handle
+    };
+
+    $scope.deleteClick = function (images) {
+        //Handle
+    };
+
+    $scope.addClick = function () {
+        $location.path("/images/"+$routeParams.userID+"/add")
+    }
+
+});
+
+
+//Images Add Page//
+//--------------------------------------------------------------------------------------------------------------------//
+app.factory('ServiceImagesAdd', function ($http) {
+    var service = {};
+
+
+    service.getAuthUser = function () {
+        return $http.get(rest + "/users/token", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.getResetLink = function () {
+        return $http.get(rest + "/users/reset", {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.updateUser = function (user) {
+        return $http.put(rest + "/users/", user, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    service.getImage = function (id) {
+        return $http.get(rest + "/images/image/"+id, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}});
+    };
+
+    service.addImage = function (image) {
+        return $http.post(rest + "/images/", image, {headers: {'Authorization': 'Bearer ' + localStorage.getItem("token")}})
+    };
+
+    return service;
+});
+
+app.controller('ControllerImagesAdd', function ($scope, $rootScope, ServiceImagesAdd, NgTableParams, $location, $routeParams) {
+    $scope.loggedIn = false;
+
+    if (localStorage.getItem("token") !== null) {
+        ServiceImagesAdd.getAuthUser().then(function (response) {
+            $scope.loggedUser = response.data;
+            $scope.loggedIn = true;
+
+            if ($scope.loggedUser.passwordChange) {
+                ServiceImagesAdd.getResetLink().then(function (response) {
+                    $location.path("/reset/" + response.data.requestID)
+                })
+            }
+
+            if($scope.loggedUser.id != $routeParams.userID)
+                $location.path("/")
+
+        }, function () {
+            $location.path("/")
+        })
+    }else {
+        $location.path("/")
+    }
+
+    $scope.logout = function () {
+        localStorage.setItem("token", null);
+        window.location.reload(false);
+    };
+
+    $scope.checkIfAdmin = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 1) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfOperator = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 2) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfSeller = function () {
+        if ($scope.loggedIn) {
+
+            let result = false;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                if ($scope.loggedUser.types[i].id === 3) {
+                    result = true;
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.checkIfUser = function () {
+        if ($scope.loggedIn) {
+
+            let result = true;
+            for (let i = 0; i < $scope.loggedUser.types.length; i++) {
+                result = false;
+            }
+
+
+            return result;
+        }
+        return false;
+    };
+
+    $scope.changePassword = function () {
+        ServiceImagesAdd.getResetLink().then(function (response) {
+            $location.path("/reset/" + response.data.requestID)
+        })
+    };
+
+    $scope.suspend = function () {
+        $scope.loggedUser.suspended = true;
+        ServiceImagesAdd.updateUser($scope.loggedUser).then(function (response) {
+            localStorage.setItem("token", null);
+            window.location.reload(false);
+        })
+    };
+
+    $scope.cancel = function () {
+        $location.path($rootScope.lastReturnLink)
+    };
+
+    $scope.add = function(){
+        ServiceImagesAdd.addImage($scope.image).then(function () {
+            $location.path($rootScope.lastReturnLink)
+        }, function () {
+            alert("There was error while trying to add image, please try again.")
+        })
+    };
+
+    $(document).ready( function() {
+
+        $(document).on('change', '.btn-file :file', function() {
+            var input = $(this),
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [label]);
+        });
+
+        $('.btn-file :file').on('fileselect', function(event, label) {
+
+            var input = $(this).parents('.input-group').find(':text'),
+                log = label;
+
+            if( input.length ) {
+                input.val(log);
+            } else {
+                if( log ) alert(log);
+            }
+
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#img-upload').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#imgInp").change(function(){
+            readURL(this);
+        });
+
+        $("#clear").click(function(){
+            $('#img-upload').attr('src','');
+            $('#urlname').val('');
+        });
+    });
 
 });
 
@@ -3270,10 +3644,20 @@ app.controller('ControllerAdminPanelTablesResolutions', function ($scope, $rootS
 
         ServiceAdminPanelTablesResolutions.getResolutions().then(function (response) {
             let data = response.data;
+
+
+            console.log(response.data);
+
+            for (let i = 0; i < data.length; i++) {
+
+                data[i].default = data[i].default ? "Yes" : "No";
+             }
+
             $scope.tableParams = new NgTableParams({}, {dataset: data});
             $scope.edit = true;
             $scope.delete = true;
             $scope.lastSync = "Last Sync: " + new Date().toLocaleString();
+
         })
     } else {
         $location.path("/")
@@ -3297,6 +3681,7 @@ app.controller('ControllerAdminPanelTablesResolutions', function ($scope, $rootS
     $scope.doDelete = function () {
         let resoltuion = {};
         Object.assign(resoltuion, $scope.selectedResolution);
+        resoltuion.default = resoltuion.default == 'Yes';
         ServiceAdminPanelTablesResolutions.deleteResolution(resoltuion).then(function () {
             window.location.reload(false);
         }, function () {
@@ -3373,7 +3758,7 @@ app.controller('ControllerAdminPanelTablesResolutionsAdd', function ($scope, NgT
     $scope.add = function () {
         var resolution = $scope.resolution;
 
-
+        resolution.default = resolution.default == 'Yes';
         ServiceAdminPanelTablesResolutionsAdd.add(resolution).then(function (response) {
             $location.path("/adminPanel/tables/resolutions")
         }, function () {
@@ -3452,12 +3837,13 @@ app.controller('ControllerAdminPanelTablesResolutionsEdit', function ($scope, $r
 
     ServiceAdminPanelTablesResolutionsEdit.getResolution($routeParams.id).then(function (response) {
         $scope.resolution = response.data;
+        $scope.resolution.default = $scope.resolution.default? 'Yes' : 'No'
     });
 
     $scope.add = function () {
         var resolution = {};
         Object.assign(resolution, $scope.resolution);
-
+        resolution.default = resolution.default == 'Yes';
 
         ServiceAdminPanelTablesResolutionsEdit.add(resolution).then(function (response) {
             $location.path($rootScope.lastReturnLink)

@@ -1,0 +1,103 @@
+<ng-include src="'content/header.html'"></ng-include>
+
+<div class="container-fluid margin-top-48">
+    <div class="card-header">
+        <i class="fa fa-images"></i> Images
+    </div>
+    <div class="card-body">
+        <button class="btn btn-primary" ng-click="addClick()" type="button"
+                ng-if="add">Add Image
+        </button>
+        <div class="table-responsive">
+            <table ng-table="vm.tableParams" class="table table-condensed table-bordered table-striped"
+                   show-filter="true">
+                <table ng-table="tableParams" class="table" show-filter="true">
+                    <tr ng-repeat="image in $data">
+                        <td title="'Image'">
+                            <img src="{{image.image}}"/>
+                        </td>
+                        <td title="'Name'" filter="{ name: 'text'}" sortable="'name'">
+                            {{image.name}}
+                        </td>
+                        <td title="'Description'" filter="{ description: 'text'}" sortable="'description'">
+                            {{image.description}}
+                        </td>
+                        <td title="'Category'" filter="{ categoryName: 'text'}" sortable="'categoryName'">
+                            {{image.categoryName}}
+                        </td>
+                        <td title="'Place'" filter="{ place: 'text'}" sortable="'place'">
+                            {{image.place}}
+                        </td>
+                        <td title="'Publish Date'" filter="{ publishDate: 'text'}" sortable="'publishDate'">
+                            {{image.publishDate}}
+                        </td>
+                        <td title="'Number of Sales'" filter="{ numberOfSales: 'text'}" sortable="'numberOfSales'">
+                            {{image.numberOfSales}}
+                        </td>
+                        <td title="'Rating'" filter="{ rating: 'text'}" sortable="'rating'">
+                            {{image.rating}}
+                        </td>
+                        <td title="'Keywords'" filter="{ keywords: 'text'}" sortable="'keywords'">
+                            {{image.keywords}}
+                        </td>
+                        <td title="'Max Price'" filter="{ maxPrice: 'text'}" sortable="'maxPrice'">
+                            {{image.maxPrice}}
+                        </td>
+                        <td title="'Min Price'" filter="{ minPrice: 'text'}" sortable="'minPrice'">
+                            {{image.minPrice}}
+                        </td>
+
+                        <td ng-if="view || edit || delete">
+                            <div>
+                                <button ng-if="view"
+                                        type="button"
+                                        class="btn btn-xs btn-default"
+                                        ng-click="viewClick(image)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <button ng-if="edit"
+                                        type="button"
+                                        class="btn btn-xs btn-default"
+                                        ng-click="editClick(image)">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                                <button ng-if="delete"
+                                        type="button"
+                                        class="btn btn-xs btn-default"
+                                        ng-click="deleteClick(image)"
+                                        data-toggle="modal" data-target="#removeModal">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer small text-muted">{{lastSync}}</div>
+</div>
+
+<div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Image?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Are you sure that you want to delete Image:{{selectedImage.name}}</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" type="button" data-dismiss="modal" ng-click="doDelete()">Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-include src="'content/footer.html'" ng-controller="ControllerHome"></ng-include>

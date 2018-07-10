@@ -11,8 +11,11 @@ import utils.Constants;
 import utils.ImageUtils;
 
 import javax.enterprise.context.Dependent;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.nio.Buffer;
 import java.sql.SQLException;
@@ -82,6 +85,33 @@ public class ImageStorageServiceImpl implements ImageStorageService {
     public String loadOriginal(Image imageInfo) {
         String path = Constants.IMAGE_FOLDER + "images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "- Original.png";
         BufferedImage image = ImageUtils.imageFromFile(path);
+        return ImageUtils.base64FromImage(image);
+    }
+
+    @Override
+    public String loadForResolution(Image imageInfo, Resolution resolution, boolean watermark) {
+        String path = Constants.IMAGE_FOLDER + "images/" + imageInfo.getOwner().getUsername() + "/" + imageInfo.getName() + "-" + imageInfo.getPublishDate() + "-"+resolution.getDescription()+".png";
+        BufferedImage image = ImageUtils.imageFromFile(path);
+
+        if(watermark){
+            // initializes necessary graphic properties
+            Graphics2D w = image.createGraphics();
+            AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f);
+            w.setComposite(alphaChannel);
+            w.setColor(Color.GRAY);
+            w.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
+            FontMetrics fontMetrics = w.getFontMetrics();
+            Rectangle2D rect = fontMetrics.getStringBounds(Constants.WATERMARK_TEXT, w);
+
+            // calculate center of the image
+            int centerX = (image.getWidth() - (int) rect.getWidth()) / 2;
+            int centerY = image.getHeight() / 2;
+
+            // add text overlay to the image
+            w.drawString(Constants.WATERMARK_TEXT, centerX, centerY);
+            w.dispose();
+        }
+
         return ImageUtils.base64FromImage(image);
     }
 }

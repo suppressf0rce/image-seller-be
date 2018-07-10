@@ -29,6 +29,9 @@
                                 <td title="'Maximum Price'" filter="{ maxPrice: 'text'}" sortable="'maxPrice'">
                                     {{resolution.maxPrice}}
                                 </td>
+                                <td title="'Default:'" filter="{ isDefault: 'text'}" sortable="'isDefault'">
+                                    {{resolution.default}}
+                                </td>
                                 <td ng-if="view || edit || delete" >
                                     <div>
                                         <button ng-if="view"

@@ -8,5 +8,6 @@ import java.util.List;
 public interface ImageDAO extends AbstractDAO<Image> {
 
     List<Image> getAllForTest(int id) throws SQLException;
+    List<Image> getAllForUser(int id) throws SQLException;
 
 }

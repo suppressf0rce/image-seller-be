@@ -9,6 +9,7 @@ public class ResolutionDTO extends AbstractDTO{
     private int height;
     private double maxPrice;
     private double minPrice;
+    private boolean isDefault;
 
     //Getters & Setters//
     //----------------------------------------------------------------------------------------------------------------//
@@ -50,5 +51,14 @@ public class ResolutionDTO extends AbstractDTO{
 
     public void setMinPrice(double minPrice) {
         this.minPrice = minPrice;
+    }
+
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 }

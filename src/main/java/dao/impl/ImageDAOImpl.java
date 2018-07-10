@@ -23,6 +23,7 @@ public class ImageDAOImpl implements ImageDAO {
     private static final String REMOVE_SQL      = "DELETE FROM image WHERE id = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM image";
     private static final String GET_ALL_TEST_SQL= "SELECT * FROM image WHERE test_id = ?";
+    private static final String GET_ALL_USER_SQL= "SELECT * FROM image WHERE user_id = ? AND test_id IS NULL";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM image WHERE id = ?";
 
 
@@ -173,6 +174,18 @@ public class ImageDAOImpl implements ImageDAO {
     public List<Image> getAllForTest(int id) throws SQLException {
         Connection connection = Database.getConnection();
         PreparedStatement ps = connection.prepareStatement(GET_ALL_TEST_SQL);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        List<Image> images = getImagesFromResultSet(rs);
+        connection.close();
+
+        return images;
+    }
+
+    @Override
+    public List<Image> getAllForUser(int id) throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_ALL_USER_SQL);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
         List<Image> images = getImagesFromResultSet(rs);

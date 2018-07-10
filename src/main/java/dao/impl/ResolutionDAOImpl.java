@@ -13,11 +13,12 @@ import java.util.List;
 public class ResolutionDAOImpl implements ResolutionDAO {
 
     //SQL//
-    private static final String INSERT_SQL      = "INSERT INTO resolution(description, width, height, max_price, min_price) VALUES(?, ?, ?, ?, ?)";
-    private static final String UPDATE_SQL      = "UPDATE resolution SET description = ?, width = ?, height = ?, max_price = ?, min_price = ? WHERE id = ?";
+    private static final String INSERT_SQL      = "INSERT INTO resolution(description, width, height, max_price, min_price, is_default) VALUES(?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE_SQL      = "UPDATE resolution SET description = ?, width = ?, height = ?, max_price = ?, min_price = ?, is_default = ? WHERE id = ?";
     private static final String REMOVE_SQL      = "DELETE FROM resolution WHERE id = ?";
     private static final String GET_ALL_SQL     = "SELECT * FROM resolution";
     private static final String GET_BY_ID_SQL   = "SELECT * FROM resolution WHERE id = ?";
+    private static final String GET_DEFAULT_SQL = "SELECT * FROM resolution WHERE is_default = 1";
 
 
     @Override
@@ -29,6 +30,7 @@ public class ResolutionDAOImpl implements ResolutionDAO {
         ps.setInt(3, object.getHeight());
         ps.setDouble(4, object.getMaxPrice());
         ps.setDouble(5, object.getMinPrice());
+        ps.setBoolean(6, object.isDefault());
         ps.execute();
 
         ResultSet rs = ps.getGeneratedKeys();
@@ -59,7 +61,8 @@ public class ResolutionDAOImpl implements ResolutionDAO {
         ps.setInt(3, object.getHeight());
         ps.setDouble(4, object.getMaxPrice());
         ps.setDouble(5, object.getMinPrice());
-        ps.setInt(6, object.getId());
+        ps.setBoolean(6, object.isDefault());
+        ps.setInt(7, object.getId());
         ps.execute();
         connection.close();
     }
@@ -91,6 +94,21 @@ public class ResolutionDAOImpl implements ResolutionDAO {
         return resolution;
     }
 
+    @Override
+    public Resolution getDefault() throws SQLException {
+        Connection connection = Database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(GET_DEFAULT_SQL);
+        ResultSet rs = ps.executeQuery();
+
+        Resolution resolution = null;
+        if(rs.next())
+            resolution = getResolutionFromResultSet(rs);
+
+        connection.close();
+
+        return resolution;
+    }
+
     private Resolution getResolutionFromResultSet(ResultSet rs) throws SQLException {
         Resolution resolution = new Resolution();
         resolution.setId(rs.getInt("id"));
@@ -99,6 +117,7 @@ public class ResolutionDAOImpl implements ResolutionDAO {
         resolution.setHeight(rs.getInt("height"));
         resolution.setMaxPrice(rs.getDouble("max_price"));
         resolution.setMinPrice(rs.getDouble("min_price"));
+        resolution.setDefault(rs.getBoolean("is_default"));
         return resolution;
     }
 
